@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import AdminLayout from "./AdminLayout";
-import ProductsView from "./ProductsView";
+import ProductsView from "./tab_product/ProductsView";
 import UsersView from "./UsersView";
 import OrdersView from "./OrdersView";
 
