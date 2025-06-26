@@ -23,4 +23,14 @@ export async function PATCH(req: Request) {
     const category = await Category.findByIdAndUpdate(_id, update, { new: true }).populate('parent');
     if (!category) return NextResponse.json({ error: "Category not found" }, { status: 404 });
     return NextResponse.json(category);
+}
+
+export async function DELETE(req: Request) {
+    await dbConnect();
+    const data = await req.json();
+    const { _id } = data;
+    if (!_id) return NextResponse.json({ error: "_id is required" }, { status: 400 });
+    const category = await Category.findByIdAndDelete(_id);
+    if (!category) return NextResponse.json({ error: "Category not found" }, { status: 404 });
+    return NextResponse.json({ success: true });
 } 

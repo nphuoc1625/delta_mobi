@@ -23,4 +23,14 @@ export async function PATCH(req: Request) {
     const parent = await ParentCategory.findByIdAndUpdate(_id, update, { new: true });
     if (!parent) return NextResponse.json({ error: "ParentCategory not found" }, { status: 404 });
     return NextResponse.json(parent);
+}
+
+export async function DELETE(req: Request) {
+    await dbConnect();
+    const data = await req.json();
+    const { _id } = data;
+    if (!_id) return NextResponse.json({ error: "_id is required" }, { status: 400 });
+    const parent = await ParentCategory.findByIdAndDelete(_id);
+    if (!parent) return NextResponse.json({ error: "ParentCategory not found" }, { status: 404 });
+    return NextResponse.json({ success: true });
 } 
