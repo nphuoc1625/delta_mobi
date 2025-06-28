@@ -14,6 +14,19 @@ interface Product {
     image: string;
 }
 
+// Define the paginated response type
+interface PaginatedResponse {
+    data: Product[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+        hasNext: boolean;
+        hasPrev: boolean;
+    };
+}
+
 const categories = ["All", "Headphones", "Speakers", "Microphones"];
 const filters = ["Price: Low to High", "Price: High to Low", "Newest"];
 
@@ -27,10 +40,17 @@ export default function ProductsPage() {
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
-            const res = await fetch("/api/products");
-            const data = await res.json();
-            setProducts(data);
-            setLoading(false);
+            try {
+                const res = await fetch("/api/products");
+                const data: PaginatedResponse = await res.json();
+                // Extract the products array from the paginated response
+                setProducts(data.data || []);
+            } catch (error) {
+                console.error("Failed to fetch products:", error);
+                setProducts([]);
+            } finally {
+                setLoading(false);
+            }
         }
         fetchProducts();
     }, []);
