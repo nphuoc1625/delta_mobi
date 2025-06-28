@@ -51,71 +51,88 @@ export function handleProductError(err: unknown): NextResponse {
 }
 
 // Product validation functions
-export function validateProductData(data: any): void {
+export function validateProductData(data: Record<string, unknown>): void {
     // Name validation
     if (!data.name || typeof data.name !== 'string') {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.PRODUCT.NAME_REQUIRED,
-            "Product name is required and must be a string"
+            "Product name is required and must be a string",
+            { entity: "Product", field: "name" }
         );
     }
 
     if (data.name.trim().length < 1) {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.PRODUCT.NAME_TOO_SHORT,
-            "Product name must be at least 1 character"
+            "Product name must be at least 1 character",
+            { entity: "Product", field: "name" }
         );
     }
 
     if (data.name.length > 200) {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.PRODUCT.NAME_TOO_LONG,
-            "Product name must be less than 200 characters"
+            "Product name must be less than 200 characters",
+            { entity: "Product", field: "name" }
+        );
+    }
+
+    // Price validation
+    if (typeof data.price !== 'number' || data.price <= 0) {
+        throw new ApiError(
+            ErrorCodes.PRODUCT.INVALID_PRICE,
+            "Product price must be a positive number",
+            { entity: "Product", field: "price" }
+        );
+    }
+
+    if (data.price > 999999.99) {
+        throw new ApiError(
+            ErrorCodes.PRODUCT.PRICE_INVALID,
+            "Product price must be less than 1,000,000",
+            { entity: "Product", field: "price" }
         );
     }
 
     // Category validation
     if (!data.category || typeof data.category !== 'string') {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.PRODUCT.CATEGORY_REQUIRED,
-            "Product category is required and must be a string"
+            "Product category is required and must be a string",
+            { entity: "Product", field: "category" }
         );
     }
 
     if (data.category.trim().length < 1) {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.PRODUCT.CATEGORY_INVALID,
-            "Product category cannot be empty"
+            "Product category must be at least 1 character",
+            { entity: "Product", field: "category" }
         );
     }
 
-    // Price validation
-    if (typeof data.price !== 'number' || data.price < 0.01) {
-        throw ApiError.validationError(
-            ErrorCodes.PRODUCT.PRICE_INVALID,
-            "Product price must be a positive number (≥ 0.01)"
+    if (data.category.length > 100) {
+        throw new ApiError(
+            ErrorCodes.PRODUCT.CATEGORY_INVALID,
+            "Product category must be less than 100 characters",
+            { entity: "Product", field: "category" }
         );
     }
 
-    if (data.price > 999999.99) {
-        throw ApiError.validationError(
-            ErrorCodes.PRODUCT.PRICE_INVALID,
-            "Product price cannot exceed 999,999.99"
-        );
-    }
-
-    // Image validation
-    if (!data.image || typeof data.image !== 'string') {
-        throw ApiError.validationError(
-            ErrorCodes.PRODUCT.IMAGE_REQUIRED,
-            "Product image is required and must be a string"
-        );
-    }
-
-    if (data.image.trim().length < 1) {
-        throw ApiError.validationError(
+    // Image validation (optional)
+    if (data.image && typeof data.image !== 'string') {
+        throw new ApiError(
             ErrorCodes.PRODUCT.IMAGE_INVALID,
-            "Product image cannot be empty"
+            "Product image must be a string",
+            { entity: "Product", field: "image" }
+        );
+    }
+
+    if (data.image && typeof data.image === 'string' && data.image.length > 500) {
+        throw new ApiError(
+            ErrorCodes.PRODUCT.IMAGE_INVALID,
+            "Product image URL must be less than 500 characters",
+            { entity: "Product", field: "image" }
         );
     }
 }

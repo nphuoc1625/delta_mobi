@@ -22,14 +22,18 @@ export function useProducts(options: UseProductsOptions = {}) {
     const [filters, setFilters] = useState<FilterParams>(options.initialFilters || {});
     const [pagination, setPagination] = useState<PaginationParams>(options.initialPagination || { page: 1, limit: 10 });
 
+    // Create a stable fetch function
+    const fetchProductsWithParams = useCallback(
+        () => fetchProducts(filters, pagination),
+        [filters, pagination]
+    );
+
     const {
         data: productsData,
         loading: productsLoading,
         error: productsError,
         execute: fetchProductsData
-    } = useRepositoryOperation<PaginatedResult<Product>>(
-        () => fetchProducts(filters, pagination)
-    );
+    } = useRepositoryOperation<PaginatedResult<Product>>(fetchProductsWithParams);
 
     const {
         data: allProducts,
@@ -41,7 +45,7 @@ export function useProducts(options: UseProductsOptions = {}) {
     // Auto-fetch when filters or pagination change
     useEffect(() => {
         fetchProductsData();
-    }, [filters, pagination, fetchProductsData]);
+    }, [fetchProductsData]);
 
     const updateFilters = useCallback((newFilters: Partial<FilterParams>) => {
         setFilters(prev => ({ ...prev, ...newFilters }));

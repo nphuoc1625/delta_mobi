@@ -145,7 +145,7 @@ async function handleApiResponse<T>(response: Response, entity: string, action: 
 
         if (errorData.error?.code) {
             throw new ApiError(
-                errorData.error.code as any,
+                ErrorCodes.GENERIC.VALIDATION_ERROR,
                 errorData.error.message || `Failed to ${action} ${entity}`,
                 {
                     entity,
@@ -187,7 +187,7 @@ function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams)
     return params.toString();
 }
 
-function validateGroupCategoryData(data: any): void {
+function validateGroupCategoryData(data: Record<string, unknown>): void {
     if (!data.name || typeof data.name !== 'string') {
         throw GroupCategoryErrors.nameRequired();
     }
@@ -205,9 +205,6 @@ function validateGroupCategoryData(data: any): void {
     if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
         throw GroupCategoryErrors.invalidNameFormat();
     }
-
-    // Update the data with trimmed name
-    data.name = trimmedName;
 
     // Validate categories array if provided
     if (data.categories && Array.isArray(data.categories)) {
@@ -241,7 +238,7 @@ export async function fetchGroupCategories(
 export async function fetchAllGroupCategories(): Promise<GroupCategory[]> {
     try {
         const response = await fetch(API_URL);
-        const result = await handleApiResponse<{ groupCategories: GroupCategory[]; pagination: any }>(response, "Group Category", "fetch");
+        const result = await handleApiResponse<{ groupCategories: GroupCategory[]; pagination: Record<string, unknown> }>(response, "Group Category", "fetch");
         return result.groupCategories || [];
     } catch (error) {
         if (error instanceof ApiError) {

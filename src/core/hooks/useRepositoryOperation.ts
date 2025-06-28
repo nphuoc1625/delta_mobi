@@ -1,253 +1,143 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ApiError } from "@/core/errors/ApiError";
+import { useState, useCallback } from 'react';
 
-interface UseRepositoryOperationOptions<T> {
-    onSuccess?: (data: T) => void;
-    onError?: (error: string) => void;
-    autoExecute?: boolean;
-}
-
-// Standard error handling function
-function handleRepositoryError(err: unknown, setError: (error: string) => void): void {
-    if (err instanceof ApiError) {
-        setError(err.message);
-        console.error("Repository error:", err.code, err.details);
-    } else {
-        setError("An unexpected error occurred");
-        console.error("Unknown error:", err);
-    }
+export interface UseRepositoryOperationResult<T> {
+    data: T | null;
+    loading: boolean;
+    error: string | null;
+    execute: () => Promise<void>;
 }
 
 export function useRepositoryOperation<T>(
-    operation: () => Promise<T>,
-    options: UseRepositoryOperationOptions<T> = {}
-) {
+    operation: () => Promise<T>
+): UseRepositoryOperationResult<T> {
+    const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<T | null>(null);
-    const [success, setSuccess] = useState(false);
-
-    // Use refs to stabilize dependencies
-    const operationRef = useRef(operation);
-    const optionsRef = useRef(options);
-
-    // Update refs when props change
-    operationRef.current = operation;
-    optionsRef.current = options;
 
     const execute = useCallback(async () => {
+        setLoading(true);
+        setError(null);
         try {
-            setLoading(true);
-            setError(null);
-            setSuccess(false);
-
-            const result = await operationRef.current();
+            const result = await operation();
             setData(result);
-            setSuccess(true);
-            optionsRef.current.onSuccess?.(result);
-
         } catch (err: unknown) {
-            handleRepositoryError(err, setError);
-            optionsRef.current.onError?.(err instanceof ApiError ? err.message : "An unexpected error occurred");
+            const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
-    }, []); // No dependencies since we use refs
-
-    const reset = useCallback(() => {
-        setLoading(false);
-        setError(null);
-        setData(null);
-        setSuccess(false);
-    }, []);
+    }, [operation]);
 
     return {
+        data,
         loading,
         error,
-        data,
-        success,
-        execute,
-        reset
+        execute
     };
 }
 
 // Hook for fetch operations
 export function useFetchOperation<T>(fetchFn: () => Promise<T>) {
-    return useRepositoryOperation(fetchFn, { autoExecute: true });
+    return useRepositoryOperation(fetchFn);
 }
 
-// Hook for create operations
-export function useCreateOperation<T, P>(createFn: (params: P) => Promise<T>) {
+export interface UseCreateOperationResult<T, TCreate> {
+    loading: boolean;
+    error: string | null;
+    execute: (data: TCreate) => Promise<T>;
+}
+
+export function useCreateOperation<T, TCreate>(
+    createOperation: (data: TCreate) => Promise<T>
+): UseCreateOperationResult<T, TCreate> {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<T | null>(null);
-    const [success, setSuccess] = useState(false);
 
-    const execute = useCallback(async (params: P) => {
+    const execute = useCallback(async (data: TCreate): Promise<T> => {
+        setLoading(true);
+        setError(null);
         try {
-            setLoading(true);
-            setError(null);
-            setSuccess(false);
-
-            const result = await createFn(params);
-            setData(result);
-            setSuccess(true);
-
+            const result = await createOperation(data);
+            return result;
         } catch (err: unknown) {
-            handleRepositoryError(err, setError);
+            const errorMessage = err instanceof Error ? err.message : 'Failed to create';
+            setError(errorMessage);
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [createFn]);
-
-    const reset = useCallback(() => {
-        setLoading(false);
-        setError(null);
-        setData(null);
-        setSuccess(false);
-    }, []);
+    }, [createOperation]);
 
     return {
         loading,
         error,
-        data,
-        success,
-        execute,
-        reset
+        execute
     };
 }
 
-// Hook for update operations
-export function useUpdateOperation<T, P>(updateFn: (id: string, params: P) => Promise<T>) {
+export interface UseUpdateOperationResult<T, TUpdate> {
+    loading: boolean;
+    error: string | null;
+    execute: (id: string, data: TUpdate) => Promise<T>;
+}
+
+export function useUpdateOperation<T, TUpdate>(
+    updateOperation: (id: string, data: TUpdate) => Promise<T>
+): UseUpdateOperationResult<T, TUpdate> {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<T | null>(null);
-    const [success, setSuccess] = useState(false);
 
-    const execute = useCallback(async (id: string, params: P) => {
+    const execute = useCallback(async (id: string, data: TUpdate): Promise<T> => {
+        setLoading(true);
+        setError(null);
         try {
-            setLoading(true);
-            setError(null);
-            setSuccess(false);
-
-            const result = await updateFn(id, params);
-            setData(result);
-            setSuccess(true);
-
+            const result = await updateOperation(id, data);
+            return result;
         } catch (err: unknown) {
-            handleRepositoryError(err, setError);
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update';
+            setError(errorMessage);
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [updateFn]);
-
-    const reset = useCallback(() => {
-        setLoading(false);
-        setError(null);
-        setData(null);
-        setSuccess(false);
-    }, []);
+    }, [updateOperation]);
 
     return {
         loading,
         error,
-        data,
-        success,
-        execute,
-        reset
+        execute
     };
 }
 
-// Hook for delete operations
-export function useDeleteOperation(deleteFn: (id: string) => Promise<void>) {
+export interface UseDeleteOperationResult {
+    loading: boolean;
+    error: string | null;
+    execute: (id: string) => Promise<void>;
+}
+
+export function useDeleteOperation(
+    deleteOperation: (id: string) => Promise<void>
+): UseDeleteOperationResult {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
 
-    const execute = useCallback(async (id: string) => {
+    const execute = useCallback(async (id: string): Promise<void> => {
+        setLoading(true);
+        setError(null);
         try {
-            setLoading(true);
-            setError(null);
-            setSuccess(false);
-
-            await deleteFn(id);
-            setSuccess(true);
-
+            await deleteOperation(id);
         } catch (err: unknown) {
-            handleRepositoryError(err, setError);
+            const errorMessage = err instanceof Error ? err.message : 'Failed to delete';
+            setError(errorMessage);
+            throw err;
         } finally {
             setLoading(false);
         }
-    }, [deleteFn]);
-
-    const reset = useCallback(() => {
-        setLoading(false);
-        setError(null);
-        setSuccess(false);
-    }, []);
+    }, [deleteOperation]);
 
     return {
         loading,
         error,
-        success,
-        execute,
-        reset
-    };
-}
-
-// Hook for filtered and paginated data
-export function useFilteredPagination<T>(
-    fetchFn: (filters: any, pagination: any) => Promise<any>
-) {
-    const [state, setState] = useState({
-        data: [] as T[],
-        filters: {},
-        pagination: { page: 1, limit: 10 },
-        totalPages: 0,
-        loading: false,
-        error: null as string | null
-    });
-
-    const loadData = useCallback(async () => {
-        try {
-            setState(prev => ({ ...prev, loading: true, error: null }));
-
-            const result = await fetchFn(state.filters, state.pagination);
-
-            setState(prev => ({
-                ...prev,
-                data: result.data,
-                totalPages: result.pagination.totalPages,
-                loading: false
-            }));
-        } catch (err: unknown) {
-            handleRepositoryError(err, (error) =>
-                setState(prev => ({ ...prev, error, loading: false }))
-            );
-        }
-    }, [fetchFn, state.filters, state.pagination]);
-
-    const updateFilters = useCallback((newFilters: any) => {
-        setState(prev => ({
-            ...prev,
-            filters: newFilters,
-            pagination: { ...prev.pagination, page: 1 } // Reset to first page
-        }));
-    }, []);
-
-    const updatePagination = useCallback((newPagination: any) => {
-        setState(prev => ({ ...prev, pagination: newPagination }));
-    }, []);
-
-    // Auto-reload when filters or pagination change
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
-
-    return {
-        ...state,
-        loadData,
-        updateFilters,
-        updatePagination
+        execute
     };
 } 

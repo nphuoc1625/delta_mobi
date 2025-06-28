@@ -134,15 +134,8 @@ export default function ProductsPage() {
                         error={productsError}
                         search={currentFilters.search || ""}
                         onSearch={handleSearch}
-                        selectedCategory={""} // Not used anymore
-                        onCategoryChange={() => { }} // Not used anymore
-                        selectedFilter={filters[0]}
-                        onFilterChange={handleSortChange}
-                        categories={[]} // Not used anymore
-                        filters={filters}
                         pagination={pagination}
                         onPageChange={handlePageChange}
-                        onClearFilters={handleClearFilters}
                     />
                 </main>
             </div>

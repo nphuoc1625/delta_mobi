@@ -1,13 +1,20 @@
-import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
-import { ErrorCodes } from "@/core/errors/errorCodes";
 import { NextResponse } from "next/server";
+import { ApiError } from "@/core/errors/ApiError";
+import { ErrorCodes } from "@/core/errors/errorCodes";
 
 // Category-specific error handling functions
 export function handleCategoryError(err: unknown): NextResponse {
     console.error("❌ [CATEGORIES API] Error:", err);
 
     if (err instanceof ApiError) {
-        return NextResponse.json(err.toResponse(), { status: err.statusCode });
+        return NextResponse.json({
+            success: false,
+            error: {
+                code: err.code,
+                message: err.message,
+                details: err.details
+            }
+        }, { status: err.statusCode || 400 });
     }
 
     // Handle MongoDB specific errors
@@ -49,48 +56,47 @@ export function handleCategoryError(err: unknown): NextResponse {
         success: false,
         error: {
             code: ErrorCodes.GENERIC.INTERNAL_ERROR,
-            message: "Internal server error"
+            message: "Internal server error",
+            details: { entity: "Category" }
         }
     }, { status: 500 });
 }
 
 // Category validation functions based on business rules
-export function validateCategoryData(data: any): void {
-    // Check if name is provided
+export function validateCategoryData(data: Record<string, unknown>): void {
     if (!data.name || typeof data.name !== 'string') {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.CATEGORY.NAME_REQUIRED,
-            "Category name is required"
+            "Category name is required",
+            { entity: "Category", field: "name" }
         );
     }
 
     const trimmedName = data.name.trim();
 
-    // Check name length (2-50 characters)
     if (trimmedName.length < 2) {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.CATEGORY.NAME_TOO_SHORT,
-            "Category name must be at least 2 characters"
+            "Category name must be at least 2 characters",
+            { entity: "Category", field: "name" }
         );
     }
 
     if (trimmedName.length > 50) {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.CATEGORY.NAME_TOO_LONG,
-            "Category name must be at most 50 characters"
+            "Category name must be at most 50 characters",
+            { entity: "Category", field: "name" }
         );
     }
 
-    // Check name format (alphanumeric, spaces, hyphens, underscores only)
     if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.VALIDATION.NAME_CONTAINS_INVALID_CHARS,
-            "Category name can only contain alphanumeric characters, spaces, hyphens, and underscores"
+            "Category name can only contain alphanumeric characters, spaces, hyphens, and underscores",
+            { entity: "Category", field: "name" }
         );
     }
-
-    // Update the data with trimmed name
-    data.name = trimmedName;
 }
 
 // Category-specific error responses

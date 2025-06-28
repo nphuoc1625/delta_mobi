@@ -15,9 +15,7 @@ const ProductSchema = new Schema({
         required: [true, "Product name is required"],
         trim: true,
         minlength: [1, "Product name must be at least 1 character"],
-        maxlength: [200, "Product name must be less than 200 characters"],
-        unique: true,
-        collation: { locale: "en", strength: 2 }
+        maxlength: [200, "Product name must be less than 200 characters"]
     },
     category: {
         type: String,
@@ -60,7 +58,7 @@ ProductSchema.pre("save", async function (next) {
 
 // Pre-update middleware for name uniqueness
 ProductSchema.pre("findOneAndUpdate", async function (next) {
-    const update = this.getUpdate() as any;
+    const update = this.getUpdate() as { name?: string };
     if (update.name) {
         const existingProduct = await this.model.findOne({
             name: { $regex: new RegExp(`^${update.name}$`, "i") },

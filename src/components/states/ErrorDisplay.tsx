@@ -1,4 +1,4 @@
-import { ApiError } from "@/core/errors/ApiError";
+import React from "react";
 
 interface ErrorDisplayProps {
     error: string | null;
