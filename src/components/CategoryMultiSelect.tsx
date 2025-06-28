@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Category } from "@/data/product/repositories/categoryRepository";
+import { Category } from "@/data/category/repository/categoryRepository";
 import { HiCheck, HiX } from "react-icons/hi";
 
 interface CategoryMultiSelectProps {
@@ -42,7 +42,7 @@ export default function CategoryMultiSelect({
     return (
         <div className="relative">
             {/* Selected Categories Display */}
-            <div className="min-h-[40px] p-2 border border-gray-700 rounded-lg bg-gray-900 flex flex-wrap gap-1">
+            <div className="min-h-[40px] p-2 border border-gray-700 rounded-lg bg-gray-900 flex flex-wrap gap-1" onClick={() => setIsOpen(!isOpen)}>
                 {selectedCategoryNames.length > 0 ? (
                     selectedCategoryNames.map((name, index) => {
                         const category = categories.find(cat => cat.name === name);

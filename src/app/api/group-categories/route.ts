@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongoose";
-import GroupCategory from "@/models/GroupCategory.model";
-import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/lib/api-utils";
+import dbConnect from "@/infrac/mongoose";
+import GroupCategory from "@/data/group_category/models/GroupCategory.model";
+import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/core/utils/api-utils";
 
 export async function GET() {
     try {

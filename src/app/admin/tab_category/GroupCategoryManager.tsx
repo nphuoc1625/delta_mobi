@@ -6,8 +6,8 @@ import {
     updateGroupCategory,
     deleteGroupCategory,
     GroupCategory,
-} from "@/data/product/repositories/groupCategoryRepository";
-import { Category, fetchCategories } from "@/data/product/repositories/categoryRepository";
+} from "@/data/group_category/repository/groupCategoryRepository";
+import { Category, fetchCategories } from "@/data/category/repository/categoryRepository";
 import { HiTrash } from "react-icons/hi";
 import Loading from "./Loading";
 import CategoryMultiSelect from "@/components/CategoryMultiSelect";

@@ -1,5 +1,5 @@
-import { Category } from "@/data/product/repositories/categoryRepository";
-import SearchBar from "./SearchBar";
+import { Category } from "@/data/category/repository/categoryRepository";
+import SearchBar from "./inputs/SearchBar";
 
 interface ProductFiltersProps {
     categories: Category[];
@@ -21,9 +21,8 @@ export default function ProductFilters({
     hasActiveFilters
 }: ProductFiltersProps) {
     return (
-        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div className=" rounded-lg    ">
             <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-medium text-gray-300">Filter Options</h4>
                 {hasActiveFilters && (
                     <button
                         onClick={onClearFilters}
@@ -36,7 +35,6 @@ export default function ProductFilters({
             <div className="space-y-4">
                 {/* Search Bar */}
                 <div>
-                    <label className="block text-xs text-gray-400 mb-2">Search</label>
                     <SearchBar
                         value={searchTerm}
                         onChange={onSearchChange}

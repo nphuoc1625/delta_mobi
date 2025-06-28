@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { HiTrash } from "react-icons/hi";
 import Loading from "./Loading";
-import { Category, fetchCategories, createCategory, updateCategory, deleteCategory } from "@/data/product/repositories/categoryRepository";
-import SearchBar from "@/components/SearchBar";
+import { Category, fetchCategories, createCategory, updateCategory, deleteCategory } from "@/data/category/repository/categoryRepository";
+import SearchBar from "@/components/inputs/SearchBar";
 
 function ItemView({
     cat,

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import Loading from "../tab_category/Loading";
 import ProductFormPopup from "./ProductFormPopup";
 import { Product, fetchProducts, createProduct, updateProduct } from "@/data/product/repositories/productRepository";
-import { Category, fetchCategories } from "@/data/product/repositories/categoryRepository";
-import SearchBar from "@/components/SearchBar";
+import { Category, fetchCategories } from "@/data/category/repository/categoryRepository";
+import SearchBar from "@/components/inputs/SearchBar";
 import ProductFilters from "@/components/ProductFilters";
-import { ProductFilterState, DEFAULT_PRODUCT_FILTER, productFilterToParams } from "@/models/ProductFilter";
+import { ProductFilterState, DEFAULT_PRODUCT_FILTER, productFilterToParams } from "@/data/product/models/ProductFilter";
 
 export default function ProductsView() {
     const [products, setProducts] = useState<Product[]>([]);

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongoose";
-import Product from "@/models/Product.model";
-import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/lib/api-utils";
+import dbConnect from "@/infrac/mongoose";
+import Product from "@/data/product/models/Product.model";
+import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/core/utils/api-utils";
 
 export async function GET(request: Request) {
     try {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Product } from "@/data/product/repositories/productRepository";
-import { Category, fetchCategories } from "@/data/product/repositories/categoryRepository";
+import { Category, fetchCategories } from "@/data/category/repository/categoryRepository";
 import CategoryMultiSelect from "@/components/CategoryMultiSelect";
 
 interface Props {

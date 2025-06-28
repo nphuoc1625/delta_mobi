@@ -1,4 +1,4 @@
-import { ProductFilter } from "@/models/ProductFilter";
+import { ProductFilter } from "@/data/product/models/ProductFilter";
 
 export interface Product {
     _id: string;
