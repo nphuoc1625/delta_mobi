@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/infrac/mongoose";
 import Product from "@/data/product/models/Product.model";
-import { ApiError, validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
-import { ErrorCodes } from "@/core/errors/errorCodes";
+import { validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
 import { handleProductError, validateProductData } from "./errors";
 
 export async function GET(request: Request) {

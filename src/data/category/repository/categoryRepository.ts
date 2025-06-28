@@ -181,7 +181,7 @@ async function handleApiResponse<T>(response: Response, entity: string, action: 
         // Handle specific error codes from API
         if (errorData.error?.code) {
             throw new ApiError(
-                errorData.error.code as any,
+                ErrorCodes.GENERIC.VALIDATION_ERROR,
                 errorData.error.message || `Failed to ${action} ${entity}`,
                 {
                     entity,
@@ -228,7 +228,7 @@ function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams)
 }
 
 // Validation function based on business rules
-function validateCategoryData(data: any): void {
+function validateCategoryData(data: Record<string, unknown>): void {
     if (!data.name || typeof data.name !== 'string') {
         throw CategoryErrors.nameRequired();
     }
@@ -271,7 +271,7 @@ export async function fetchCategories(
 export async function fetchAllCategories(): Promise<Category[]> {
     try {
         const response = await fetch(API_URL);
-        const result = await handleApiResponse<{ categories: Category[]; pagination: any }>(response, "Category", "fetch");
+        const result = await handleApiResponse<{ categories: Category[]; pagination: Record<string, unknown> }>(response, "Category", "fetch");
         return result.categories || [];
     } catch (error) {
         if (error instanceof ApiError) {

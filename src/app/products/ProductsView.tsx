@@ -9,12 +9,6 @@ interface ProductsViewProps {
     error: string | null;
     search: string;
     onSearch: (searchTerm: string) => void;
-    selectedCategory: string;
-    onCategoryChange: (category: string) => void;
-    selectedFilter: string;
-    onFilterChange: (filter: string) => void;
-    categories: string[];
-    filters: string[];
     pagination?: {
         page: number;
         limit: number;
@@ -24,7 +18,6 @@ interface ProductsViewProps {
         hasPrev: boolean;
     };
     onPageChange?: (page: number) => void;
-    onClearFilters?: () => void;
 }
 
 export default function ProductsView({
@@ -33,15 +26,8 @@ export default function ProductsView({
     error,
     search,
     onSearch,
-    selectedCategory,
-    onCategoryChange,
-    selectedFilter,
-    onFilterChange,
-    categories,
-    filters,
     pagination,
     onPageChange,
-    onClearFilters,
 }: ProductsViewProps) {
     // Handle error state
     if (error) {

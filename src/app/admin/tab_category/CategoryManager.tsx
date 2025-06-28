@@ -79,7 +79,7 @@ export default function CategoryManager() {
     // Load categories on mount only
     useEffect(() => {
         loadCategories();
-    }, []); // Empty dependency array to run only on mount
+    }, [loadCategories]); // Add loadCategories as dependency
 
     // Update local state when data changes
     useEffect(() => {
@@ -97,8 +97,8 @@ export default function CategoryManager() {
             setNewCategoryName("");
             // Reload categories to get the updated list
             loadCategories();
-        } catch (error) {
-            // Error is handled by the hook
+        } catch (err: unknown) {
+            console.error('Failed to create category:', err);
         }
     }
 
@@ -117,8 +117,8 @@ export default function CategoryManager() {
             setEditCategoryName("");
             // Reload categories to get the updated list
             loadCategories();
-        } catch (error) {
-            // Error is handled by the hook
+        } catch (err: unknown) {
+            console.error('Failed to update category:', err);
         }
     }
 
@@ -129,8 +129,8 @@ export default function CategoryManager() {
             await executeDelete(id);
             // Reload categories to get the updated list
             loadCategories();
-        } catch (error) {
-            // Error is handled by the hook
+        } catch (err: unknown) {
+            console.error('Failed to delete category:', err);
         }
     }
 

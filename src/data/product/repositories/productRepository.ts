@@ -140,7 +140,7 @@ async function handleApiResponse<T>(response: Response, entity: string, action: 
 
         if (errorData.code) {
             throw new ApiError(
-                errorData.code as any,
+                ErrorCodes.GENERIC.VALIDATION_ERROR,
                 errorData.error || `Failed to ${action} ${entity}`,
                 {
                     entity,
@@ -184,7 +184,7 @@ function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams)
     return params.toString();
 }
 
-function validateProductData(data: any): void {
+function validateProductData(data: Record<string, unknown>): void {
     // Name validation
     if (!data.name || typeof data.name !== 'string') {
         throw ProductErrors.invalidName("Product name is required and must be a string");
@@ -198,31 +198,35 @@ function validateProductData(data: any): void {
         throw ProductErrors.invalidName("Product name must be less than 200 characters");
     }
 
+    // Price validation
+    if (typeof data.price !== 'number' || data.price <= 0) {
+        throw ProductErrors.invalidPrice("Product price must be a positive number");
+    }
+
+    if (data.price > 999999.99) {
+        throw ProductErrors.invalidPrice("Product price must be less than 1,000,000");
+    }
+
     // Category validation
     if (!data.category || typeof data.category !== 'string') {
         throw ProductErrors.invalidCategory("Product category is required and must be a string");
     }
 
     if (data.category.trim().length < 1) {
-        throw ProductErrors.invalidCategory("Product category cannot be empty");
+        throw ProductErrors.invalidCategory("Product category must be at least 1 character");
     }
 
-    // Price validation
-    if (typeof data.price !== 'number' || data.price < 0.01) {
-        throw ProductErrors.invalidPrice("Product price must be a positive number (≥ 0.01)");
-    }
-
-    if (data.price > 999999.99) {
-        throw ProductErrors.invalidPrice("Product price cannot exceed 999,999.99");
+    if (data.category.length > 100) {
+        throw ProductErrors.invalidCategory("Product category must be less than 100 characters");
     }
 
     // Image validation
-    if (!data.image || typeof data.image !== 'string') {
-        throw ProductErrors.invalidImage("Product image is required and must be a string");
+    if (data.image && typeof data.image !== 'string') {
+        throw ProductErrors.invalidImage("Product image must be a string");
     }
 
-    if (data.image.trim().length < 1) {
-        throw ProductErrors.invalidImage("Product image cannot be empty");
+    if (data.image && typeof data.image === 'string' && data.image.length > 500) {
+        throw ProductErrors.invalidImage("Product image URL must be less than 500 characters");
     }
 }
 

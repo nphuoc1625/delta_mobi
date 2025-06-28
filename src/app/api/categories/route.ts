@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/infrac/mongoose";
 import Category from "@/data/category/models/Category.model";
 import GroupCategory from "@/data/group_category/models/GroupCategory.model";
-import { ApiError, validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
-import { ErrorCodes } from "@/core/errors/errorCodes";
+import { validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
 import { handleCategoryError, validateCategoryData } from "./errors";
 
 export async function GET(req: Request) {
@@ -22,13 +21,13 @@ export async function GET(req: Request) {
         console.log("📊 [CATEGORIES API] Fetching categories with filters:", { page, limit, search, sort, order });
 
         // Build query
-        const query: any = {};
+        const query: Record<string, unknown> = {};
         if (search) {
             query.name = { $regex: search, $options: 'i' };
         }
 
         // Build sort
-        const sortObj: any = {};
+        const sortObj: Record<string, 1 | -1> = {};
         sortObj[sort] = order === 'asc' ? 1 : -1;
 
         // Execute query with pagination

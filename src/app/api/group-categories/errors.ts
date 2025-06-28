@@ -1,13 +1,20 @@
-import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
-import { ErrorCodes } from "@/core/errors/errorCodes";
 import { NextResponse } from "next/server";
+import { ApiError } from "@/core/errors/ApiError";
+import { ErrorCodes } from "@/core/errors/errorCodes";
 
 // Group Category-specific error handling functions
 export function handleGroupCategoryError(err: unknown): NextResponse {
     console.error("❌ [GROUP CATEGORIES API] Error:", err);
 
     if (err instanceof ApiError) {
-        return NextResponse.json(err.toResponse(), { status: err.statusCode });
+        return NextResponse.json({
+            success: false,
+            error: {
+                code: err.code,
+                message: err.message,
+                details: err.details
+            }
+        }, { status: err.statusCode || 400 });
     }
 
     // Handle MongoDB specific errors
@@ -49,43 +56,45 @@ export function handleGroupCategoryError(err: unknown): NextResponse {
         success: false,
         error: {
             code: ErrorCodes.GENERIC.INTERNAL_ERROR,
-            message: "Internal server error"
+            message: "Internal server error",
+            details: { entity: "GroupCategory" }
         }
     }, { status: 500 });
 }
 
 // Group Category validation functions based on business rules
-export function validateGroupCategoryData(data: any): void {
-    // Check if name is provided
+export function validateGroupCategoryData(data: Record<string, unknown>): void {
     if (!data.name || typeof data.name !== 'string') {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.GROUP_CATEGORY.NAME_REQUIRED,
-            "Group category name is required"
+            "Group category name is required",
+            { entity: "GroupCategory", field: "name" }
         );
     }
 
     const trimmedName = data.name.trim();
 
-    // Check name length (3-100 characters)
-    if (trimmedName.length < 3) {
-        throw ApiError.validationError(
+    if (trimmedName.length < 2) {
+        throw new ApiError(
             ErrorCodes.GROUP_CATEGORY.NAME_TOO_SHORT,
-            "Group category name must be at least 3 characters"
+            "Group category name must be at least 2 characters",
+            { entity: "GroupCategory", field: "name" }
         );
     }
 
-    if (trimmedName.length > 100) {
-        throw ApiError.validationError(
+    if (trimmedName.length > 50) {
+        throw new ApiError(
             ErrorCodes.GROUP_CATEGORY.NAME_TOO_LONG,
-            "Group category name must be at most 100 characters"
+            "Group category name must be at most 50 characters",
+            { entity: "GroupCategory", field: "name" }
         );
     }
 
-    // Check name format (alphanumeric, spaces, hyphens, underscores only)
     if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
-        throw ApiError.validationError(
+        throw new ApiError(
             ErrorCodes.VALIDATION.NAME_CONTAINS_INVALID_CHARS,
-            "Group category name can only contain alphanumeric characters, spaces, hyphens, and underscores"
+            "Group category name can only contain alphanumeric characters, spaces, hyphens, and underscores",
+            { entity: "GroupCategory", field: "name" }
         );
     }
 
@@ -97,9 +106,10 @@ export function validateGroupCategoryData(data: any): void {
         // Categories array is optional, but if provided, must contain valid ObjectIds
         for (const categoryId of data.categories) {
             if (!categoryId || typeof categoryId !== 'string') {
-                throw ApiError.validationError(
+                throw new ApiError(
                     ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
-                    "Invalid category ID in categories array"
+                    "Invalid category ID in categories array",
+                    { entity: "GroupCategory", field: "categories" }
                 );
             }
         }
