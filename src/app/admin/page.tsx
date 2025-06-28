@@ -1,15 +1,25 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminLayout from "./AdminLayout";
 import ProductsView from "./tab_product/ProductsView";
 import UsersView from "./UsersView";
 import OrdersView from "./OrdersView";
-import CategoriesView from "./CategoriesView";
+import CategoriesView from "./tab_category/CategoriesView";
 
 const tabs = ["Products", "Categories", "Users", "Orders"];
+const TAB_KEY = "adminTabIndex";
 
 export default function AdminPage() {
-    const [activeTab, setActiveTab] = useState("Products");
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window !== "undefined") {
+            return localStorage.getItem(TAB_KEY) || "Products";
+        }
+        return "Products";
+    });
+
+    useEffect(() => {
+        localStorage.setItem(TAB_KEY, activeTab);
+    }, [activeTab]);
 
     let content = null;
     if (activeTab === "Products") content = <ProductsView />;

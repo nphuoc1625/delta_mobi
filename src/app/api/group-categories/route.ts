@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
-import Category from "@/models/Category.model";
+import GroupCategory from "@/models/GroupCategory.model";
 import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/lib/api-utils";
 
 export async function GET() {
     try {
         await dbConnect();
-        const categories = await Category.find();
-        return NextResponse.json(categories);
+        const groups = await GroupCategory.find();
+        return NextResponse.json(groups);
     } catch (err: any) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
@@ -20,13 +20,13 @@ export async function POST(req: Request) {
     try {
         await dbConnect();
         const data = await req.json();
-        const category = await Category.create(data);
-        return NextResponse.json(category, { status: 201 });
+        const group = await GroupCategory.create(data);
+        return NextResponse.json(group, { status: 201 });
     } catch (err: any) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
-        return handleMongoError(err, "Category");
+        return handleMongoError(err, "Group category");
     }
 }
 
@@ -36,17 +36,17 @@ export async function PATCH(req: Request) {
         const data = await req.json();
         const { _id, ...update } = data;
 
-        validateRequiredId(_id, "Category");
+        validateRequiredId(_id, "Group category");
 
-        const category = await Category.findByIdAndUpdate(_id, update, { new: true });
-        validateEntityExists(category, "Category");
+        const group = await GroupCategory.findByIdAndUpdate(_id, update, { new: true });
+        validateEntityExists(group, "Group category");
 
-        return NextResponse.json(category);
+        return NextResponse.json(group);
     } catch (err: any) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
-        return handleMongoError(err, "Category");
+        return handleMongoError(err, "Group category");
     }
 }
 
@@ -56,10 +56,10 @@ export async function DELETE(req: Request) {
         const data = await req.json();
         const { _id } = data;
 
-        validateRequiredId(_id, "Category");
+        validateRequiredId(_id, "Group category");
 
-        const category = await Category.findByIdAndDelete(_id);
-        validateEntityExists(category, "Category");
+        const group = await GroupCategory.findByIdAndDelete(_id);
+        validateEntityExists(group, "Group category");
 
         return NextResponse.json({ success: true });
     } catch (err: any) {
