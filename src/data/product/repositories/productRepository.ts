@@ -7,6 +7,8 @@ export interface Product {
     category: string;
     price: number;
     image: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface FilterParams {
@@ -76,25 +78,31 @@ export const ProductErrors = {
     notFound: (id?: string) => RepositoryErrors.notFound("Product", id),
     invalidName: (message: string) =>
         new ApiError(
-            ErrorCodes.PRODUCT.INVALID_DATA,
+            ErrorCodes.PRODUCT.NAME_REQUIRED,
             message,
             { entity: "Product", field: "name" }
         ),
     invalidPrice: (message: string) =>
         new ApiError(
-            ErrorCodes.PRODUCT.INVALID_PRICE,
+            ErrorCodes.PRODUCT.PRICE_INVALID,
             message,
             { entity: "Product", field: "price" }
         ),
     invalidCategory: (message: string) =>
         new ApiError(
-            ErrorCodes.PRODUCT.INVALID_CATEGORY,
+            ErrorCodes.PRODUCT.CATEGORY_INVALID,
             message,
             { entity: "Product", field: "category" }
         ),
+    invalidImage: (message: string) =>
+        new ApiError(
+            ErrorCodes.PRODUCT.IMAGE_INVALID,
+            message,
+            { entity: "Product", field: "image" }
+        ),
     alreadyExists: (name: string) =>
         new ApiError(
-            ErrorCodes.PRODUCT.ALREADY_EXISTS,
+            ErrorCodes.PRODUCT.NAME_DUPLICATE,
             `Product "${name}" already exists`,
             { entity: "Product", field: "name", value: name }
         ),
@@ -177,18 +185,20 @@ function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams)
 }
 
 function validateProductData(data: any): void {
+    // Name validation
     if (!data.name || typeof data.name !== 'string') {
         throw ProductErrors.invalidName("Product name is required and must be a string");
     }
 
     if (data.name.trim().length < 1) {
-        throw ProductErrors.invalidName("Product name cannot be empty");
+        throw ProductErrors.invalidName("Product name must be at least 1 character");
     }
 
     if (data.name.length > 200) {
         throw ProductErrors.invalidName("Product name must be less than 200 characters");
     }
 
+    // Category validation
     if (!data.category || typeof data.category !== 'string') {
         throw ProductErrors.invalidCategory("Product category is required and must be a string");
     }
@@ -197,20 +207,22 @@ function validateProductData(data: any): void {
         throw ProductErrors.invalidCategory("Product category cannot be empty");
     }
 
-    if (typeof data.price !== 'number' || data.price < 0) {
-        throw ProductErrors.invalidPrice("Product price must be a positive number");
+    // Price validation
+    if (typeof data.price !== 'number' || data.price < 0.01) {
+        throw ProductErrors.invalidPrice("Product price must be a positive number (≥ 0.01)");
     }
 
     if (data.price > 999999.99) {
-        throw ProductErrors.invalidPrice("Product price must be less than 1,000,000");
+        throw ProductErrors.invalidPrice("Product price cannot exceed 999,999.99");
     }
 
+    // Image validation
     if (!data.image || typeof data.image !== 'string') {
-        throw ProductErrors.invalidName("Product image URL is required and must be a string");
+        throw ProductErrors.invalidImage("Product image is required and must be a string");
     }
 
     if (data.image.trim().length < 1) {
-        throw ProductErrors.invalidName("Product image URL cannot be empty");
+        throw ProductErrors.invalidImage("Product image cannot be empty");
     }
 }
 
