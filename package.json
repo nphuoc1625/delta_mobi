@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "NODE_ENV=development next dev --turbopack",
     "test": "NODE_ENV=test next dev --turbopack",
-    "prod": "NODE_ENV=production next build next dev --turbopack",
+    "prod": "NODE_ENV=production next build && next start",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
