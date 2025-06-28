@@ -8,8 +8,8 @@ export class ApiError extends Error {
     }
 }
 
-export function handleMongoError(err: any, entityName: string): never {
-    if (err.code === 11000) {
+export function handleMongoError(err: unknown, entityName: string): never {
+    if (err && typeof err === 'object' && 'code' in err && err.code === 11000) {
         throw new ApiError(`${entityName} name must be unique.`, 409);
     }
     throw new ApiError(`Internal server error`, 500);
@@ -21,7 +21,7 @@ export function validateRequiredId(_id: string | undefined, entityName: string):
     }
 }
 
-export function validateEntityExists(entity: any, entityName: string): void {
+export function validateEntityExists(entity: unknown, entityName: string): void {
     if (!entity) {
         throw new ApiError(`${entityName} not found`, 404);
     }

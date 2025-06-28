@@ -37,9 +37,6 @@ function GroupCategoryItem({
     handleUpdateGroupCategories: (group: GroupCategory, newCategories: string[]) => Promise<void>;
     saving: string | null;
 }) {
-    // Only show categories that are already added to the group
-    const addedCategories = allCategories.filter(cat => (group.categories || []).includes(cat._id));
-
     const handleCategorySelection = async (selectedIds: string[]) => {
         await handleUpdateGroupCategories(group, selectedIds);
     };
@@ -95,7 +92,6 @@ export default function GroupCategoryManager() {
     const [newGroupName, setNewGroupName] = useState("");
     const [editGroupId, setEditGroupId] = useState<string | null>(null);
     const [editGroupName, setEditGroupName] = useState("");
-    const [editGroupCategories, setEditGroupCategories] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState<string | null>(null); // group id being saved
@@ -110,8 +106,9 @@ export default function GroupCategoryManager() {
             ]);
             setGroupCategories(groups);
             setCategories(cats);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load groups and categories';
+            setError(errorMessage);
         }
         setLoading(false);
     }
@@ -127,15 +124,15 @@ export default function GroupCategoryManager() {
             const group = await createGroupCategory(newGroupName);
             setGroupCategories((prev) => [...prev, group]);
             setNewGroupName("");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to create group category';
+            setError(errorMessage);
         }
     }
 
     function startEditGroup(group: GroupCategory) {
         setEditGroupId(group._id);
         setEditGroupName(group.name);
-        setEditGroupCategories(group.categories || []);
     }
     async function handleEditGroupCategory(e: React.FormEvent) {
         e.preventDefault();
@@ -146,9 +143,9 @@ export default function GroupCategoryManager() {
             setGroupCategories((prev) => prev.map((g) => (g._id === updated._id ? updated : g)));
             setEditGroupId(null);
             setEditGroupName("");
-            setEditGroupCategories([]);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update group category';
+            setError(errorMessage);
         }
     }
     async function handleDeleteGroupCategory(id: string) {
@@ -157,8 +154,9 @@ export default function GroupCategoryManager() {
         try {
             await deleteGroupCategory(id);
             setGroupCategories((prev) => prev.filter((g) => g._id !== id));
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to delete group category';
+            setError(errorMessage);
         }
     }
 
@@ -175,8 +173,9 @@ export default function GroupCategoryManager() {
             if (!res.ok) throw new Error("Failed to update group categories");
             const updated = await res.json();
             setGroupCategories((prev) => prev.map((g) => (g._id === updated._id ? updated : g)));
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update group categories';
+            setError(errorMessage);
         }
         setSaving(null);
     }
@@ -220,7 +219,7 @@ export default function GroupCategoryManager() {
                             onEdit={() => startEditGroup(group)}
                             onDelete={() => handleDeleteGroupCategory(group._id)}
                             onSubmit={handleEditGroupCategory}
-                            onCancel={() => { setEditGroupId(null); setEditGroupName(""); setEditGroupCategories([]); }}
+                            onCancel={() => { setEditGroupId(null); setEditGroupName(""); }}
                             allCategories={categories}
                             handleUpdateGroupCategories={handleUpdateGroupCategories}
                             saving={saving}

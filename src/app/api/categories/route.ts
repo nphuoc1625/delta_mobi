@@ -8,7 +8,7 @@ export async function GET() {
         await dbConnect();
         const categories = await Category.find();
         return NextResponse.json(categories);
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         const data = await req.json();
         const category = await Category.create(data);
         return NextResponse.json(category, { status: 201 });
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -42,7 +42,7 @@ export async function PATCH(req: Request) {
         validateEntityExists(category, "Category");
 
         return NextResponse.json(category);
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -62,7 +62,7 @@ export async function DELETE(req: Request) {
         validateEntityExists(category, "Category");
 
         return NextResponse.json({ success: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }

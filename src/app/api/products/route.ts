@@ -13,7 +13,7 @@ export async function GET(request: Request) {
         const category = searchParams.get('category');
 
         // Build query object
-        const query: any = {};
+        const query: Record<string, unknown> = {};
 
         if (search) {
             query.$or = [
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 
         const products = await Product.find(query);
         return NextResponse.json(products);
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         const data = await req.json();
         const product = await Product.create(data);
         return NextResponse.json(product, { status: 201 });
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -62,7 +62,7 @@ export async function PATCH(req: Request) {
         validateEntityExists(product, "Product");
 
         return NextResponse.json(product);
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -82,7 +82,7 @@ export async function DELETE(req: Request) {
         validateEntityExists(product, "Product");
 
         return NextResponse.json({ success: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }

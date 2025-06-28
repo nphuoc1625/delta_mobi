@@ -65,8 +65,6 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
         setForm(prev => ({ ...prev, category: selectedIds[0] || "" }));
     };
 
-    const selectedCategory = categories.find(c => c._id === form.category);
-
     if (!open) return null;
 
     return (

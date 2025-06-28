@@ -8,7 +8,7 @@ export async function GET() {
         await dbConnect();
         const groups = await GroupCategory.find();
         return NextResponse.json(groups);
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         const data = await req.json();
         const group = await GroupCategory.create(data);
         return NextResponse.json(group, { status: 201 });
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -42,7 +42,7 @@ export async function PATCH(req: Request) {
         validateEntityExists(group, "Group category");
 
         return NextResponse.json(group);
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
@@ -62,7 +62,7 @@ export async function DELETE(req: Request) {
         validateEntityExists(group, "Group category");
 
         return NextResponse.json({ success: true });
-    } catch (err: any) {
+    } catch (err: unknown) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }

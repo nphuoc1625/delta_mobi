@@ -75,8 +75,9 @@ export default function CategoryManager() {
         try {
             const data = await fetchCategories();
             setCategories(data);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load categories';
+            setError(errorMessage);
         }
         setLoading(false);
     }
@@ -92,8 +93,9 @@ export default function CategoryManager() {
             const cat = await createCategory(newCategoryName);
             setCategories((prev) => [...prev, cat]);
             setNewCategoryName("");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to create category';
+            setError(errorMessage);
         }
     }
     function startEditCategory(cat: Category) {
@@ -109,8 +111,9 @@ export default function CategoryManager() {
             setCategories((prev) => prev.map((c) => (c._id === updated._id ? updated : c)));
             setEditCategoryId(null);
             setEditCategoryName("");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update category';
+            setError(errorMessage);
         }
     }
     async function handleDeleteCategory(id: string) {
@@ -119,8 +122,9 @@ export default function CategoryManager() {
         try {
             await deleteCategory(id);
             setCategories((prev) => prev.filter((c) => c._id !== id));
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to delete category';
+            setError(errorMessage);
         }
     }
 
