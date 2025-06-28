@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Product } from "@/data/product/repositories/productRepository";
-import { Category, fetchCategories } from "@/data/category/repository/categoryRepository";
+import { Category, fetchAllCategories } from "@/data/category/repository/categoryRepository";
 import CategoryMultiSelect from "@/components/CategoryMultiSelect";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function ProductFormPopup({ open, onClose, onSubmit, initialProduct }: Props) {
-    const [form, setForm] = useState<Omit<Product, '_id'> & { _id?: string }>({ name: "", category: "", price: 0, image: "" });
+    const [form, setForm] = useState<Omit<Product, '_id'> & { _id?: string }>({ name: "", category: "", price: 0, image: "", createdAt: "", updatedAt: "" });
     const [errors, setErrors] = useState<{ [k: string]: string }>({});
     const [submitting, setSubmitting] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -21,7 +21,7 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
         if (initialProduct) {
             setForm({ ...initialProduct });
         } else {
-            setForm({ name: "", category: "", price: 0, image: "" });
+            setForm({ name: "", category: "", price: 0, image: "", createdAt: "", updatedAt: "" });
         }
         setErrors({});
     }, [initialProduct, open]);
@@ -35,7 +35,7 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
     async function loadCategories() {
         setCategoryLoading(true);
         try {
-            const data = await fetchCategories();
+            const data = await fetchAllCategories();
             setCategories(data);
         } catch {
             setCategories([]);

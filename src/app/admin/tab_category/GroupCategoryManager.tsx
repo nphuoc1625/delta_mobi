@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
-    fetchGroupCategories,
+    fetchAllGroupCategories,
     createGroupCategory,
     updateGroupCategory,
     deleteGroupCategory,
     GroupCategory,
 } from "@/data/group_category/repository/groupCategoryRepository";
-import { Category, fetchCategories } from "@/data/category/repository/categoryRepository";
+import { Category, fetchAllCategories } from "@/data/category/repository/categoryRepository";
 import { HiTrash } from "react-icons/hi";
 import Loading from "./Loading";
 import CategoryMultiSelect from "@/components/CategoryMultiSelect";
@@ -101,8 +101,8 @@ export default function GroupCategoryManager() {
         setError(null);
         try {
             const [groups, cats] = await Promise.all([
-                fetchGroupCategories(),
-                fetchCategories(),
+                fetchAllGroupCategories(),
+                fetchAllCategories(),
             ]);
             setGroupCategories(groups);
             setCategories(cats);
@@ -165,13 +165,7 @@ export default function GroupCategoryManager() {
         setSaving(group._id);
         setError(null);
         try {
-            const res = await fetch("/api/group-categories", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ _id: group._id, categories: newCategories }),
-            });
-            if (!res.ok) throw new Error("Failed to update group categories");
-            const updated = await res.json();
+            const updated = await updateGroupCategory(group._id, group.name, newCategories);
             setGroupCategories((prev) => prev.map((g) => (g._id === updated._id ? updated : g)));
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to update group categories';

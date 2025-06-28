@@ -3,10 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "NODE_ENV=development next dev --turbopack",
+    "test": "NODE_ENV=test next dev --turbopack",
+    "prod": "NODE_ENV=production next build && next start",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:dev": "NODE_ENV=development next build",
+    "build:prod": "NODE_ENV=production next build",
+    "build:test": "NODE_ENV=test next build && npm run start"
   },
   "dependencies": {
     "mongoose": "^8.16.1",
