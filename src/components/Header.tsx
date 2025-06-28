@@ -12,7 +12,7 @@ export default function Header() {
                 </Link>
             </div>
             <nav className="flex gap-4">
-                <a href="/products" className="px-4 py-2 rounded-lg font-medium hover:bg-gray-800/80 transition">Products</a>
+                <Link href="/products" className="px-4 py-2 rounded-lg font-medium hover:bg-gray-800/80 transition">Products</Link>
                 <a href="#about" className="px-4 py-2 rounded-lg font-medium hover:bg-gray-800/80 transition">About</a>
                 <a href="#contact" className="px-4 py-2 rounded-lg font-medium hover:bg-gray-800/80 transition">Contact</a>
             </nav>
