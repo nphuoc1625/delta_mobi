@@ -1,33 +1,13 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/infrac/mongoose";
-import Product from "@/data/product/models/Product.model";
+import Category from "@/data/category/models/Category.model";
 import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/core/utils/api-utils";
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
         await dbConnect();
-
-        // Parse query parameters
-        const { searchParams } = new URL(request.url);
-        const search = searchParams.get('search');
-        const category = searchParams.get('category');
-
-        // Build query object
-        const query: any = {};
-
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { category: { $regex: search, $options: 'i' } }
-            ];
-        }
-
-        if (category) {
-            query.category = category;
-        }
-
-        const products = await Product.find(query);
-        return NextResponse.json(products);
+        const categories = await Category.find();
+        return NextResponse.json(categories);
     } catch (err: any) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
@@ -40,13 +20,13 @@ export async function POST(req: Request) {
     try {
         await dbConnect();
         const data = await req.json();
-        const product = await Product.create(data);
-        return NextResponse.json(product, { status: 201 });
+        const category = await Category.create(data);
+        return NextResponse.json(category, { status: 201 });
     } catch (err: any) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
-        return handleMongoError(err, "Product");
+        return handleMongoError(err, "Category");
     }
 }
 
@@ -56,17 +36,17 @@ export async function PATCH(req: Request) {
         const data = await req.json();
         const { _id, ...update } = data;
 
-        validateRequiredId(_id, "Product");
+        validateRequiredId(_id, "Category");
 
-        const product = await Product.findByIdAndUpdate(_id, update, { new: true });
-        validateEntityExists(product, "Product");
+        const category = await Category.findByIdAndUpdate(_id, update, { new: true });
+        validateEntityExists(category, "Category");
 
-        return NextResponse.json(product);
+        return NextResponse.json(category);
     } catch (err: any) {
         if (err instanceof ApiError) {
             return NextResponse.json({ error: err.message }, { status: err.statusCode });
         }
-        return handleMongoError(err, "Product");
+        return handleMongoError(err, "Category");
     }
 }
 
@@ -76,10 +56,10 @@ export async function DELETE(req: Request) {
         const data = await req.json();
         const { _id } = data;
 
-        validateRequiredId(_id, "Product");
+        validateRequiredId(_id, "Category");
 
-        const product = await Product.findByIdAndDelete(_id);
-        validateEntityExists(product, "Product");
+        const category = await Category.findByIdAndDelete(_id);
+        validateEntityExists(category, "Category");
 
         return NextResponse.json({ success: true });
     } catch (err: any) {
