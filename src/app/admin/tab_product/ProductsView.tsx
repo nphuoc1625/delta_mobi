@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Loading from "../tab_category/Loading";
 import ProductFormPopup from "./ProductFormPopup";
 import { Product, fetchProducts, createProduct, updateProduct } from "@/data/product/repositories/productRepository";
 import { Category, fetchCategories } from "@/data/category/repository/categoryRepository";
-import SearchBar from "@/components/inputs/SearchBar";
 import ProductFilters from "@/components/ProductFilters";
 import { ProductFilterState, DEFAULT_PRODUCT_FILTER, productFilterToParams } from "@/data/product/models/ProductFilter";
+import Image from "next/image";
 
 export default function ProductsView() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -18,7 +18,7 @@ export default function ProductsView() {
     // Filter state
     const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTER);
 
-    async function loadProducts() {
+    const loadProducts = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -28,15 +28,16 @@ export default function ProductsView() {
             ]);
             setProducts(productsData);
             setCategories(categoriesData);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load products';
+            setError(errorMessage);
         }
         setLoading(false);
-    }
+    }, [filters]);
 
     useEffect(() => {
         loadProducts();
-    }, [filters]);
+    }, [loadProducts]);
 
     async function handleFormSubmit(product: Omit<Product, '_id'> & { _id?: string }) {
         try {
@@ -49,8 +50,9 @@ export default function ProductsView() {
             await loadProducts();
             setShowForm(false);
             setEditProduct(null);
-        } catch (err: any) {
-            alert(err.message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to save product';
+            alert(errorMessage);
         }
     }
 
@@ -120,9 +122,11 @@ export default function ProductsView() {
                                 <div className="flex items-center gap-3 w-full">
                                     <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-700 flex items-center justify-center">
                                         {product.image ? (
-                                            <img
+                                            <Image
                                                 src={product.image}
                                                 alt={product.name}
+                                                width={48}
+                                                height={48}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
                                                     e.currentTarget.style.display = 'none';
