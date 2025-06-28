@@ -2,7 +2,10 @@
 import { useEffect, useState } from "react";
 import { HiTrash } from "react-icons/hi";
 import Loading from "./Loading";
-import { Category, fetchCategories, createCategory, updateCategory, deleteCategory } from "@/data/category/repository/categoryRepository";
+import { Category, fetchAllCategories, createCategory, updateCategory, deleteCategory } from "@/data/category/repository/categoryRepository";
+import { useRepositoryOperation, useCreateOperation, useUpdateOperation, useDeleteOperation } from "@/core/hooks/useRepositoryOperation";
+import { ErrorDisplay } from "@/components/states/ErrorDisplay";
+import { LoadingState } from "@/components/states/LoadingState";
 import SearchBar from "@/components/inputs/SearchBar";
 
 function ItemView({
@@ -65,66 +68,69 @@ export default function CategoryManager() {
     const [newCategoryName, setNewCategoryName] = useState("");
     const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
     const [editCategoryName, setEditCategoryName] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
 
-    async function loadCategories() {
-        setLoading(true);
-        setError(null);
-        try {
-            const data = await fetchCategories();
-            setCategories(data);
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Failed to load categories';
-            setError(errorMessage);
-        }
-        setLoading(false);
-    }
+    // Repository operations using custom hooks
+    const { loading, error, data, execute: loadCategories } = useRepositoryOperation(fetchAllCategories);
+    const { loading: creating, error: createError, execute: executeCreate } = useCreateOperation(createCategory);
+    const { loading: updating, error: updateError, execute: executeUpdate } = useUpdateOperation(updateCategory);
+    const { loading: deleting, error: deleteError, execute: executeDelete } = useDeleteOperation(deleteCategory);
 
+    // Load categories on mount only
     useEffect(() => {
         loadCategories();
-    }, []);
+    }, []); // Empty dependency array to run only on mount
+
+    // Update local state when data changes
+    useEffect(() => {
+        if (data) {
+            setCategories(data);
+        }
+    }, [data]);
 
     async function handleAddCategory(e: React.FormEvent) {
         e.preventDefault();
-        setError(null);
+        if (!newCategoryName.trim()) return;
+
         try {
-            const cat = await createCategory(newCategoryName);
-            setCategories((prev) => [...prev, cat]);
+            await executeCreate(newCategoryName);
             setNewCategoryName("");
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Failed to create category';
-            setError(errorMessage);
+            // Reload categories to get the updated list
+            loadCategories();
+        } catch (error) {
+            // Error is handled by the hook
         }
     }
+
     function startEditCategory(cat: Category) {
         setEditCategoryId(cat._id);
         setEditCategoryName(cat.name);
     }
+
     async function handleEditCategory(e: React.FormEvent) {
         e.preventDefault();
-        setError(null);
+        if (!editCategoryId || !editCategoryName.trim()) return;
+
         try {
-            if (!editCategoryId) return;
-            const updated = await updateCategory(editCategoryId, editCategoryName);
-            setCategories((prev) => prev.map((c) => (c._id === updated._id ? updated : c)));
+            await executeUpdate(editCategoryId, editCategoryName);
             setEditCategoryId(null);
             setEditCategoryName("");
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Failed to update category';
-            setError(errorMessage);
+            // Reload categories to get the updated list
+            loadCategories();
+        } catch (error) {
+            // Error is handled by the hook
         }
     }
+
     async function handleDeleteCategory(id: string) {
         if (!confirm("Delete this category?")) return;
-        setError(null);
+
         try {
-            await deleteCategory(id);
-            setCategories((prev) => prev.filter((c) => c._id !== id));
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Failed to delete category';
-            setError(errorMessage);
+            await executeDelete(id);
+            // Reload categories to get the updated list
+            loadCategories();
+        } catch (error) {
+            // Error is handled by the hook
         }
     }
 
@@ -132,6 +138,10 @@ export default function CategoryManager() {
     const filteredCategories = categories.filter(cat =>
         cat.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Combine all errors
+    const combinedError = error || createError || updateError || deleteError;
+    const isLoading = loading || creating || updating || deleting;
 
     return (
         <div>
@@ -156,40 +166,57 @@ export default function CategoryManager() {
                     onChange={e => setNewCategoryName(e.target.value)}
                     placeholder="New category name"
                     className="px-4 py-2 rounded bg-gray-800 text-white focus:outline-none w-full flex-[5]"
+                    disabled={creating}
                 />
                 <button
                     type="submit"
-                    className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 font-semibold text-sm flex-shrink-0"
+                    className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 font-semibold text-sm flex-shrink-0 disabled:opacity-50"
                     style={{ minWidth: "64px" }}
+                    disabled={creating || !newCategoryName.trim()}
                 >
-                    Add
+                    {creating ? 'Adding...' : 'Add'}
                 </button>
             </form>
 
-            {error && <div className="text-red-400 mb-2">{error}</div>}
+            {/* Error Display */}
+            <ErrorDisplay
+                error={combinedError}
+                onRetry={loadCategories}
+                className="mb-4"
+            />
 
-            {loading ? (
-                <Loading />
-            ) : filteredCategories.length === 0 ? (
-                <div className="flex items-center justify-center min-h-[120px] text-gray-500 text-lg">
-                    {searchTerm ? "No categories match your search." : "No categories found."}
+            {/* Loading and Content States */}
+            <LoadingState loading={loading} fallback={<Loading />}>
+                {filteredCategories.length === 0 ? (
+                    <div className="flex items-center justify-center min-h-[120px] text-gray-500 text-lg">
+                        {searchTerm ? "No categories match your search." : "No categories found."}
+                    </div>
+                ) : (
+                    <ul className="flex flex-col gap-2">
+                        {filteredCategories.map((cat) => (
+                            <ItemView
+                                key={cat._id}
+                                cat={cat}
+                                isEditing={editCategoryId === cat._id}
+                                editCategoryName={editCategoryName}
+                                setEditCategoryName={setEditCategoryName}
+                                onEdit={() => startEditCategory(cat)}
+                                onDelete={() => handleDeleteCategory(cat._id)}
+                                onSubmit={handleEditCategory}
+                                onCancel={() => { setEditCategoryId(null); setEditCategoryName(""); }}
+                            />
+                        ))}
+                    </ul>
+                )}
+            </LoadingState>
+
+            {/* Loading indicator for operations */}
+            {isLoading && !loading && (
+                <div className="mt-4 text-center text-gray-400">
+                    {creating && "Adding category..."}
+                    {updating && "Updating category..."}
+                    {deleting && "Deleting category..."}
                 </div>
-            ) : (
-                <ul className="flex flex-col gap-2">
-                    {filteredCategories.map((cat) => (
-                        <ItemView
-                            key={cat._id}
-                            cat={cat}
-                            isEditing={editCategoryId === cat._id}
-                            editCategoryName={editCategoryName}
-                            setEditCategoryName={setEditCategoryName}
-                            onEdit={() => startEditCategory(cat)}
-                            onDelete={() => handleDeleteCategory(cat._id)}
-                            onSubmit={handleEditCategory}
-                            onCancel={() => { setEditCategoryId(null); setEditCategoryName(""); }}
-                        />
-                    ))}
-                </ul>
             )}
         </div>
     );

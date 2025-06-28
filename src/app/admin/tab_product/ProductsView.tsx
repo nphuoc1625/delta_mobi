@@ -1,43 +1,52 @@
 import { useEffect, useState, useCallback } from "react";
 import Loading from "../tab_category/Loading";
 import ProductFormPopup from "./ProductFormPopup";
-import { Product, fetchProducts, createProduct, updateProduct } from "@/data/product/repositories/productRepository";
-import { Category, fetchCategories } from "@/data/category/repository/categoryRepository";
+import { Product } from "@/data/product/repositories/productRepository";
+import { Category, fetchAllCategories } from "@/data/category/repository/categoryRepository";
 import ProductFilters from "@/components/ProductFilters";
 import { ProductFilterState, DEFAULT_PRODUCT_FILTER, productFilterToParams } from "@/data/product/models/ProductFilter";
 import Image from "next/image";
+import { useProducts, useProductCreate, useProductUpdate } from "@/core/hooks/useProductOperations";
 
 export default function ProductsView() {
-    const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [editProduct, setEditProduct] = useState<Product | null>(null);
+
+    // Use the new products hook
+    const {
+        products,
+        productsLoading: loading,
+        productsError: error,
+        fetchProducts,
+        updateFilters
+    } = useProducts();
+
+    // Use separate hooks for create/update operations
+    const { execute: createProduct } = useProductCreate();
+    const { execute: updateProduct } = useProductUpdate();
 
     // Filter state
     const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTER);
 
-    const loadProducts = useCallback(async () => {
-        setLoading(true);
-        setError(null);
+    const loadCategories = useCallback(async () => {
         try {
-            const [productsData, categoriesData] = await Promise.all([
-                fetchProducts(productFilterToParams(filters)),
-                fetchCategories()
-            ]);
-            setProducts(productsData);
+            const categoriesData = await fetchAllCategories();
             setCategories(categoriesData);
         } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Failed to load products';
-            setError(errorMessage);
+            console.error('Failed to load categories:', err);
         }
-        setLoading(false);
-    }, [filters]);
+    }, []);
 
     useEffect(() => {
-        loadProducts();
-    }, [loadProducts]);
+        loadCategories();
+    }, [loadCategories]);
+
+    // Update filters and fetch products
+    useEffect(() => {
+        const params = productFilterToParams(filters);
+        updateFilters(params);
+    }, [filters, updateFilters]);
 
     async function handleFormSubmit(product: Omit<Product, '_id'> & { _id?: string }) {
         try {
@@ -47,7 +56,8 @@ export default function ProductsView() {
             } else {
                 await createProduct(product);
             }
-            await loadProducts();
+            // Refresh products after creating/updating
+            fetchProducts();
             setShowForm(false);
             setEditProduct(null);
         } catch (err: unknown) {
