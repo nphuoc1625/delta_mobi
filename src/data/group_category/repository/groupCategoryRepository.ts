@@ -5,12 +5,14 @@ export interface GroupCategory {
     _id: string;
     name: string;
     categories: string[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface FilterParams {
     search?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
+    sort?: string;
+    order?: 'asc' | 'desc';
 }
 
 export interface PaginationParams {
@@ -24,9 +26,7 @@ export interface PaginatedResult<T> {
         page: number;
         limit: number;
         total: number;
-        totalPages: number;
-        hasNext: boolean;
-        hasPrev: boolean;
+        pages: number;
     };
 }
 
@@ -69,17 +69,41 @@ export const RepositoryErrors = {
 
 export const GroupCategoryErrors = {
     notFound: (id?: string) => RepositoryErrors.notFound("Group Category", id),
-    invalidName: (message: string) =>
+    nameRequired: () =>
         new ApiError(
-            ErrorCodes.GROUP_CATEGORY.INVALID_NAME,
-            message,
+            ErrorCodes.GROUP_CATEGORY.NAME_REQUIRED,
+            "Group category name is required",
             { entity: "Group Category", field: "name" }
         ),
-    alreadyExists: (name: string) =>
+    nameTooShort: () =>
         new ApiError(
-            ErrorCodes.GROUP_CATEGORY.ALREADY_EXISTS,
+            ErrorCodes.GROUP_CATEGORY.NAME_TOO_SHORT,
+            "Group category name must be at least 3 characters",
+            { entity: "Group Category", field: "name" }
+        ),
+    nameTooLong: () =>
+        new ApiError(
+            ErrorCodes.GROUP_CATEGORY.NAME_TOO_LONG,
+            "Group category name must be at most 100 characters",
+            { entity: "Group Category", field: "name" }
+        ),
+    nameDuplicate: (name: string) =>
+        new ApiError(
+            ErrorCodes.GROUP_CATEGORY.NAME_DUPLICATE,
             `Group Category "${name}" already exists`,
             { entity: "Group Category", field: "name", value: name }
+        ),
+    invalidNameFormat: () =>
+        new ApiError(
+            ErrorCodes.VALIDATION.NAME_CONTAINS_INVALID_CHARS,
+            "Group category name can only contain alphanumeric characters, spaces, hyphens, and underscores",
+            { entity: "Group Category", field: "name" }
+        ),
+    invalidCategoryId: () =>
+        new ApiError(
+            ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
+            "Invalid category ID in categories array",
+            { entity: "Group Category", field: "categories" }
         ),
     categoryAssignmentFailed: () =>
         new ApiError(
@@ -119,10 +143,10 @@ async function handleApiResponse<T>(response: Response, entity: string, action: 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
 
-        if (errorData.code) {
+        if (errorData.error?.code) {
             throw new ApiError(
-                errorData.code as any,
-                errorData.error || `Failed to ${action} ${entity}`,
+                errorData.error.code as any,
+                errorData.error.message || `Failed to ${action} ${entity}`,
                 {
                     entity,
                     action,
@@ -146,15 +170,16 @@ async function handleApiResponse<T>(response: Response, entity: string, action: 
         }
     }
 
-    return response.json();
+    const result = await response.json();
+    return result.data || result;
 }
 
 function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams): string {
     const params = new URLSearchParams();
 
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
-    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+    if (filters?.sort) params.append('sort', filters.sort);
+    if (filters?.order) params.append('order', filters.order);
 
     if (pagination?.page) params.append('page', pagination.page.toString());
     if (pagination?.limit) params.append('limit', pagination.limit.toString());
@@ -164,28 +189,33 @@ function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams)
 
 function validateGroupCategoryData(data: any): void {
     if (!data.name || typeof data.name !== 'string') {
-        throw GroupCategoryErrors.invalidName("Group category name is required and must be a string");
+        throw GroupCategoryErrors.nameRequired();
     }
 
-    if (data.name.trim().length < 1) {
-        throw GroupCategoryErrors.invalidName("Group category name cannot be empty");
+    const trimmedName = data.name.trim();
+
+    if (trimmedName.length < 3) {
+        throw GroupCategoryErrors.nameTooShort();
     }
 
-    if (data.name.length > 100) {
-        throw GroupCategoryErrors.invalidName("Group category name must be less than 100 characters");
+    if (trimmedName.length > 100) {
+        throw GroupCategoryErrors.nameTooLong();
     }
 
-    if (!Array.isArray(data.categories)) {
-        throw GroupCategoryErrors.invalidName("Categories must be an array");
+    if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
+        throw GroupCategoryErrors.invalidNameFormat();
     }
 
-    if (data.categories.length === 0) {
-        throw GroupCategoryErrors.invalidName("At least one category must be selected");
-    }
+    // Update the data with trimmed name
+    data.name = trimmedName;
 
-    for (const category of data.categories) {
-        if (typeof category !== 'string') {
-            throw GroupCategoryErrors.invalidName("All categories must be strings");
+    // Validate categories array if provided
+    if (data.categories && Array.isArray(data.categories)) {
+        // Categories array is optional, but if provided, must contain valid strings
+        for (const categoryId of data.categories) {
+            if (!categoryId || typeof categoryId !== 'string') {
+                throw GroupCategoryErrors.invalidCategoryId();
+            }
         }
     }
 }
@@ -211,7 +241,8 @@ export async function fetchGroupCategories(
 export async function fetchAllGroupCategories(): Promise<GroupCategory[]> {
     try {
         const response = await fetch(API_URL);
-        return handleApiResponse<GroupCategory[]>(response, "Group Category", "fetch");
+        const result = await handleApiResponse<{ groupCategories: GroupCategory[]; pagination: any }>(response, "Group Category", "fetch");
+        return result.groupCategories || [];
     } catch (error) {
         if (error instanceof ApiError) {
             throw error;
@@ -223,7 +254,7 @@ export async function fetchAllGroupCategories(): Promise<GroupCategory[]> {
 export async function fetchGroupCategoryById(id: string): Promise<GroupCategory> {
     try {
         if (!id) {
-            throw GroupCategoryErrors.invalidName("Group category ID is required");
+            throw GroupCategoryErrors.notFound();
         }
 
         const response = await fetch(`${API_URL}/${id}`);
@@ -232,18 +263,20 @@ export async function fetchGroupCategoryById(id: string): Promise<GroupCategory>
         if (error instanceof ApiError) {
             throw error;
         }
-        throw GroupCategoryErrors.fetchFailed();
+        throw GroupCategoryErrors.notFound(id);
     }
 }
 
-export async function createGroupCategory(name: string, categories: string[]): Promise<GroupCategory> {
+export async function createGroupCategory(name: string, categories: string[] = []): Promise<GroupCategory> {
     try {
         validateGroupCategoryData({ name, categories });
 
         const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, categories }),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: name.trim(), categories }),
         });
 
         return handleApiResponse<GroupCategory>(response, "Group Category", "create");
@@ -255,17 +288,20 @@ export async function createGroupCategory(name: string, categories: string[]): P
     }
 }
 
-export async function updateGroupCategory(id: string, name: string, categories: string[]): Promise<GroupCategory> {
+export async function updateGroupCategory(id: string, name: string, categories: string[] = []): Promise<GroupCategory> {
     try {
         if (!id) {
-            throw GroupCategoryErrors.invalidName("Group category ID is required");
+            throw GroupCategoryErrors.notFound();
         }
+
         validateGroupCategoryData({ name, categories });
 
         const response = await fetch(API_URL, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ _id: id, name, categories }),
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ _id: id, name: name.trim(), categories }),
         });
 
         return handleApiResponse<GroupCategory>(response, "Group Category", "update");
@@ -280,16 +316,18 @@ export async function updateGroupCategory(id: string, name: string, categories: 
 export async function deleteGroupCategory(id: string): Promise<void> {
     try {
         if (!id) {
-            throw GroupCategoryErrors.invalidName("Group category ID is required");
+            throw GroupCategoryErrors.notFound();
         }
 
         const response = await fetch(API_URL, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify({ _id: id }),
         });
 
-        await handleApiResponse<{ success: boolean }>(response, "Group Category", "delete");
+        await handleApiResponse(response, "Group Category", "delete");
     } catch (error) {
         if (error instanceof ApiError) {
             throw error;

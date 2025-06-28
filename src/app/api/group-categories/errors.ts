@@ -1,8 +1,8 @@
-import { ApiError } from "@/core/errors/ApiError";
+import { ApiError, handleMongoError, validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
 import { ErrorCodes } from "@/core/errors/errorCodes";
 import { NextResponse } from "next/server";
 
-// Group Category-specific error handling function
+// Group Category-specific error handling functions
 export function handleGroupCategoryError(err: unknown): NextResponse {
     console.error("❌ [GROUP CATEGORIES API] Error:", err);
 
@@ -17,83 +17,91 @@ export function handleGroupCategoryError(err: unknown): NextResponse {
         switch (mongoError.code) {
             case 11000: // Duplicate key error
                 return NextResponse.json({
-                    error: "Group category already exists",
-                    code: ErrorCodes.GROUP_CATEGORY.ALREADY_EXISTS,
-                    statusCode: 409,
-                    timestamp: new Date().toISOString(),
+                    success: false,
+                    error: {
+                        code: ErrorCodes.GROUP_CATEGORY.NAME_DUPLICATE,
+                        message: "Group category name already exists"
+                    }
                 }, { status: 409 });
 
             case 121: // Document validation failed
                 return NextResponse.json({
-                    error: "Group category validation failed",
-                    code: ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
-                    statusCode: 400,
-                    timestamp: new Date().toISOString(),
+                    success: false,
+                    error: {
+                        code: ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
+                        message: "Group category validation failed"
+                    }
                 }, { status: 400 });
 
             default:
                 return NextResponse.json({
-                    error: "Database operation failed",
-                    code: ErrorCodes.GROUP_CATEGORY.FETCH_FAILED,
-                    statusCode: 500,
-                    timestamp: new Date().toISOString(),
+                    success: false,
+                    error: {
+                        code: ErrorCodes.GROUP_CATEGORY.FETCH_FAILED,
+                        message: "Database operation failed"
+                    }
                 }, { status: 500 });
         }
     }
 
     // Generic error fallback
     return NextResponse.json({
-        error: "Internal server error",
-        code: ErrorCodes.GENERIC.INTERNAL_ERROR,
-        statusCode: 500,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GENERIC.INTERNAL_ERROR,
+            message: "Internal server error"
+        }
     }, { status: 500 });
 }
 
-// Group Category validation functions
+// Group Category validation functions based on business rules
 export function validateGroupCategoryData(data: any): void {
+    // Check if name is provided
     if (!data.name || typeof data.name !== 'string') {
         throw ApiError.validationError(
-            ErrorCodes.GROUP_CATEGORY.INVALID_NAME,
-            "Group category name is required and must be a string"
+            ErrorCodes.GROUP_CATEGORY.NAME_REQUIRED,
+            "Group category name is required"
         );
     }
 
-    if (data.name.trim().length < 1) {
+    const trimmedName = data.name.trim();
+
+    // Check name length (3-100 characters)
+    if (trimmedName.length < 3) {
         throw ApiError.validationError(
-            ErrorCodes.GROUP_CATEGORY.INVALID_NAME,
-            "Group category name cannot be empty"
+            ErrorCodes.GROUP_CATEGORY.NAME_TOO_SHORT,
+            "Group category name must be at least 3 characters"
         );
     }
 
-    if (data.name.length > 100) {
+    if (trimmedName.length > 100) {
         throw ApiError.validationError(
-            ErrorCodes.GROUP_CATEGORY.INVALID_NAME,
-            "Group category name must be less than 100 characters"
+            ErrorCodes.GROUP_CATEGORY.NAME_TOO_LONG,
+            "Group category name must be at most 100 characters"
         );
     }
 
-    if (!Array.isArray(data.categories)) {
+    // Check name format (alphanumeric, spaces, hyphens, underscores only)
+    if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
         throw ApiError.validationError(
-            ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
-            "Categories must be an array"
+            ErrorCodes.VALIDATION.NAME_CONTAINS_INVALID_CHARS,
+            "Group category name can only contain alphanumeric characters, spaces, hyphens, and underscores"
         );
     }
 
-    if (data.categories.length === 0) {
-        throw ApiError.validationError(
-            ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
-            "At least one category must be selected"
-        );
-    }
+    // Update the data with trimmed name
+    data.name = trimmedName;
 
-    // Validate that all categories are strings
-    for (const category of data.categories) {
-        if (typeof category !== 'string') {
-            throw ApiError.validationError(
-                ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
-                "All categories must be strings"
-            );
+    // Validate categories array if provided
+    if (data.categories && Array.isArray(data.categories)) {
+        // Categories array is optional, but if provided, must contain valid ObjectIds
+        for (const categoryId of data.categories) {
+            if (!categoryId || typeof categoryId !== 'string') {
+                throw ApiError.validationError(
+                    ErrorCodes.GROUP_CATEGORY.VALIDATION_ERROR,
+                    "Invalid category ID in categories array"
+                );
+            }
         }
     }
 }
@@ -101,58 +109,66 @@ export function validateGroupCategoryData(data: any): void {
 // Group Category-specific error responses
 export const GroupCategoryErrorResponses = {
     notFound: (id: string) => NextResponse.json({
-        error: `Group category with ID ${id} not found`,
-        code: ErrorCodes.GROUP_CATEGORY.NOT_FOUND,
-        statusCode: 404,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GENERIC.ID_NOT_FOUND,
+            message: `Group category with ID ${id} not found`
+        }
     }, { status: 404 }),
 
     alreadyExists: (name: string) => NextResponse.json({
-        error: `Group category "${name}" already exists`,
-        code: ErrorCodes.GROUP_CATEGORY.ALREADY_EXISTS,
-        statusCode: 409,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GROUP_CATEGORY.NAME_DUPLICATE,
+            message: `Group category "${name}" already exists`
+        }
     }, { status: 409 }),
 
     invalidName: (message: string) => NextResponse.json({
-        error: message,
-        code: ErrorCodes.GROUP_CATEGORY.INVALID_NAME,
-        statusCode: 400,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GROUP_CATEGORY.INVALID_NAME,
+            message: message
+        }
     }, { status: 400 }),
 
-    categoryAssignmentFailed: () => NextResponse.json({
-        error: "Failed to assign categories to group",
-        code: ErrorCodes.GROUP_CATEGORY.CATEGORY_ASSIGNMENT_FAILED,
-        statusCode: 500,
-        timestamp: new Date().toISOString(),
-    }, { status: 500 }),
-
     createFailed: () => NextResponse.json({
-        error: "Failed to create group category",
-        code: ErrorCodes.GROUP_CATEGORY.CREATE_FAILED,
-        statusCode: 500,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GROUP_CATEGORY.CREATE_FAILED,
+            message: "Failed to create group category"
+        }
     }, { status: 500 }),
 
     updateFailed: () => NextResponse.json({
-        error: "Failed to update group category",
-        code: ErrorCodes.GROUP_CATEGORY.UPDATE_FAILED,
-        statusCode: 500,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GROUP_CATEGORY.UPDATE_FAILED,
+            message: "Failed to update group category"
+        }
     }, { status: 500 }),
 
     deleteFailed: () => NextResponse.json({
-        error: "Failed to delete group category",
-        code: ErrorCodes.GROUP_CATEGORY.DELETE_FAILED,
-        statusCode: 500,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GROUP_CATEGORY.DELETE_FAILED,
+            message: "Failed to delete group category"
+        }
     }, { status: 500 }),
 
     fetchFailed: () => NextResponse.json({
-        error: "Failed to fetch group categories",
-        code: ErrorCodes.GROUP_CATEGORY.FETCH_FAILED,
-        statusCode: 500,
-        timestamp: new Date().toISOString(),
+        success: false,
+        error: {
+            code: ErrorCodes.GROUP_CATEGORY.FETCH_FAILED,
+            message: "Failed to fetch group categories"
+        }
+    }, { status: 500 }),
+
+    categoryAssignmentFailed: () => NextResponse.json({
+        success: false,
+        error: {
+            code: ErrorCodes.GROUP_CATEGORY.CATEGORY_ASSIGNMENT_FAILED,
+            message: "Failed to assign categories to group category"
+        }
     }, { status: 500 }),
 }; 

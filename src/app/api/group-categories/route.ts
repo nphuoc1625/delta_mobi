@@ -5,15 +5,56 @@ import { ApiError, validateRequiredId, validateEntityExists } from "@/core/error
 import { ErrorCodes } from "@/core/errors/errorCodes";
 import { handleGroupCategoryError, validateGroupCategoryData } from "./errors";
 
-export async function GET() {
+export async function GET(req: Request) {
     console.log("🔍 [GROUP CATEGORIES API] GET request received");
     try {
         console.log("🔌 [GROUP CATEGORIES API] Connecting to database...");
         await dbConnect();
-        console.log("📊 [GROUP CATEGORIES API] Fetching all group categories...");
-        const groups = await GroupCategory.find();
-        console.log(`✅ [GROUP CATEGORIES API] Found ${groups.length} group categories`);
-        return NextResponse.json(groups);
+
+        const { searchParams } = new URL(req.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 100);
+        const search = searchParams.get('search') || '';
+        const sort = searchParams.get('sort') || 'createdAt';
+        const order = searchParams.get('order') || 'desc';
+
+        console.log("📊 [GROUP CATEGORIES API] Fetching group categories with filters:", { page, limit, search, sort, order });
+
+        // Build query
+        const query: any = {};
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+
+        // Build sort
+        const sortObj: any = {};
+        sortObj[sort] = order === 'asc' ? 1 : -1;
+
+        // Execute query with pagination
+        const skip = (page - 1) * limit;
+        const groupCategories = await GroupCategory.find(query)
+            .populate('categories', 'name')
+            .sort(sortObj)
+            .skip(skip)
+            .limit(limit);
+
+        const total = await GroupCategory.countDocuments(query);
+        const pages = Math.ceil(total / limit);
+
+        console.log(`✅ [GROUP CATEGORIES API] Found ${groupCategories.length} group categories (page ${page}/${pages})`);
+
+        return NextResponse.json({
+            success: true,
+            data: {
+                groupCategories,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    pages
+                }
+            }
+        });
     } catch (err: unknown) {
         console.error("❌ [GROUP CATEGORIES API] GET error:", err);
         return handleGroupCategoryError(err);
@@ -33,7 +74,11 @@ export async function POST(req: Request) {
 
         const group = await GroupCategory.create(data);
         console.log("✅ [GROUP CATEGORIES API] Group category created successfully:", group);
-        return NextResponse.json(group, { status: 201 });
+
+        return NextResponse.json({
+            success: true,
+            data: group
+        }, { status: 201 });
     } catch (err: unknown) {
         console.error("❌ [GROUP CATEGORIES API] POST error:", err);
         return handleGroupCategoryError(err);
@@ -56,7 +101,11 @@ export async function PATCH(req: Request) {
         validateEntityExists(group, "Group Category");
 
         console.log("✅ [GROUP CATEGORIES API] Group category updated successfully:", group);
-        return NextResponse.json(group);
+
+        return NextResponse.json({
+            success: true,
+            data: group
+        });
     } catch (err: unknown) {
         console.error("❌ [GROUP CATEGORIES API] PATCH error:", err);
         return handleGroupCategoryError(err);
@@ -78,11 +127,13 @@ export async function DELETE(req: Request) {
         validateEntityExists(group, "Group Category");
 
         console.log("✅ [GROUP CATEGORIES API] Group category deleted successfully:", group);
+
         return NextResponse.json({
             success: true,
-            message: "Group category deleted successfully",
-            code: "GROUP_CATEGORY_DELETE_SUCCESS",
-            timestamp: new Date().toISOString()
+            data: {
+                message: "Group category deleted successfully",
+                group: group
+            }
         });
     } catch (err: unknown) {
         console.error("❌ [GROUP CATEGORIES API] DELETE error:", err);

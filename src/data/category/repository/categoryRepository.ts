@@ -5,14 +5,15 @@ import { ErrorCodes } from "@/core/errors/errorCodes";
 export interface Category {
     _id: string;
     name: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 // Define filter and pagination interfaces
 export interface FilterParams {
     search?: string;
-    category?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
+    sort?: string;
+    order?: 'asc' | 'desc';
 }
 
 export interface PaginationParams {
@@ -26,9 +27,21 @@ export interface PaginatedResult<T> {
         page: number;
         limit: number;
         total: number;
-        totalPages: number;
-        hasNext: boolean;
-        hasPrev: boolean;
+        pages: number;
+    };
+}
+
+// Warning interface for deletion
+export interface DeletionWarning {
+    category: {
+        _id: string;
+        name: string;
+    };
+    warnings: {
+        affectedProducts: number;
+        affectedGroupCategories: number;
+        productNames: string[];
+        groupCategoryNames: string[];
     };
 }
 
@@ -78,17 +91,35 @@ export const RepositoryErrors = {
 // Entity-specific error objects
 export const CategoryErrors = {
     notFound: (id?: string) => RepositoryErrors.notFound("Category", id),
-    invalidName: (message: string) =>
+    nameRequired: () =>
         new ApiError(
-            ErrorCodes.CATEGORY.INVALID_NAME,
-            message,
+            ErrorCodes.CATEGORY.NAME_REQUIRED,
+            "Category name is required",
             { entity: "Category", field: "name" }
         ),
-    alreadyExists: (name: string) =>
+    nameTooShort: () =>
         new ApiError(
-            ErrorCodes.CATEGORY.ALREADY_EXISTS,
+            ErrorCodes.CATEGORY.NAME_TOO_SHORT,
+            "Category name must be at least 2 characters",
+            { entity: "Category", field: "name" }
+        ),
+    nameTooLong: () =>
+        new ApiError(
+            ErrorCodes.CATEGORY.NAME_TOO_LONG,
+            "Category name must be at most 50 characters",
+            { entity: "Category", field: "name" }
+        ),
+    nameDuplicate: (name: string) =>
+        new ApiError(
+            ErrorCodes.CATEGORY.NAME_DUPLICATE,
             `Category "${name}" already exists`,
             { entity: "Category", field: "name", value: name }
+        ),
+    invalidNameFormat: () =>
+        new ApiError(
+            ErrorCodes.VALIDATION.NAME_CONTAINS_INVALID_CHARS,
+            "Category name can only contain alphanumeric characters, spaces, hyphens, and underscores",
+            { entity: "Category", field: "name" }
         ),
     createFailed: () =>
         new ApiError(
@@ -114,6 +145,30 @@ export const CategoryErrors = {
             "Failed to fetch categories",
             { entity: "Category", action: "fetch" }
         ),
+    hasProducts: () =>
+        new ApiError(
+            ErrorCodes.CATEGORY.HAS_PRODUCTS,
+            "Cannot delete category with associated products",
+            { entity: "Category", action: "delete" }
+        ),
+    userCancelledDeletion: () =>
+        new ApiError(
+            ErrorCodes.CATEGORY.USER_CANCELLED_DELETION,
+            "Category deletion cancelled by user",
+            { entity: "Category", action: "delete" }
+        ),
+    deletionNotConfirmed: () =>
+        new ApiError(
+            ErrorCodes.CATEGORY.DELETION_NOT_CONFIRMED,
+            "Category deletion not confirmed",
+            { entity: "Category", action: "delete" }
+        ),
+    cascadeRemovalFailed: () =>
+        new ApiError(
+            ErrorCodes.CATEGORY.CASCADE_REMOVAL_FAILED,
+            "Failed to remove category from group categories",
+            { entity: "Category", action: "delete" }
+        ),
 };
 
 const API_URL = "/api/categories";
@@ -124,10 +179,10 @@ async function handleApiResponse<T>(response: Response, entity: string, action: 
         const errorData = await response.json().catch(() => ({}));
 
         // Handle specific error codes from API
-        if (errorData.code) {
+        if (errorData.error?.code) {
             throw new ApiError(
-                errorData.code as any,
-                errorData.error || `Failed to ${action} ${entity}`,
+                errorData.error.code as any,
+                errorData.error.message || `Failed to ${action} ${entity}`,
                 {
                     entity,
                     action,
@@ -152,7 +207,8 @@ async function handleApiResponse<T>(response: Response, entity: string, action: 
         }
     }
 
-    return response.json();
+    const result = await response.json();
+    return result.data || result;
 }
 
 // Helper function to build query parameters
@@ -161,9 +217,8 @@ function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams)
 
     // Add filter parameters
     if (filters?.search) params.append('search', filters.search);
-    if (filters?.category) params.append('category', filters.category);
-    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
-    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+    if (filters?.sort) params.append('sort', filters.sort);
+    if (filters?.order) params.append('order', filters.order);
 
     // Add pagination parameters
     if (pagination?.page) params.append('page', pagination.page.toString());
@@ -172,18 +227,24 @@ function buildQueryParams(filters?: FilterParams, pagination?: PaginationParams)
     return params.toString();
 }
 
-// Validation function
+// Validation function based on business rules
 function validateCategoryData(data: any): void {
     if (!data.name || typeof data.name !== 'string') {
-        throw CategoryErrors.invalidName("Category name is required and must be a string");
+        throw CategoryErrors.nameRequired();
     }
 
-    if (data.name.trim().length < 1) {
-        throw CategoryErrors.invalidName("Category name cannot be empty");
+    const trimmedName = data.name.trim();
+
+    if (trimmedName.length < 2) {
+        throw CategoryErrors.nameTooShort();
     }
 
-    if (data.name.length > 100) {
-        throw CategoryErrors.invalidName("Category name must be less than 100 characters");
+    if (trimmedName.length > 50) {
+        throw CategoryErrors.nameTooLong();
+    }
+
+    if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
+        throw CategoryErrors.invalidNameFormat();
     }
 }
 
@@ -206,11 +267,12 @@ export async function fetchCategories(
     }
 }
 
-// Fetch all items (simple version without pagination)
+// Fetch all categories without pagination
 export async function fetchAllCategories(): Promise<Category[]> {
     try {
         const response = await fetch(API_URL);
-        return handleApiResponse<Category[]>(response, "Category", "fetch");
+        const result = await handleApiResponse<{ categories: Category[]; pagination: any }>(response, "Category", "fetch");
+        return result.categories || [];
     } catch (error) {
         if (error instanceof ApiError) {
             throw error;
@@ -219,11 +281,11 @@ export async function fetchAllCategories(): Promise<Category[]> {
     }
 }
 
-// Fetch single item by ID
+// Fetch a single category by ID
 export async function fetchCategoryById(id: string): Promise<Category> {
     try {
         if (!id) {
-            throw CategoryErrors.invalidName("Category ID is required");
+            throw CategoryErrors.notFound();
         }
 
         const response = await fetch(`${API_URL}/${id}`);
@@ -232,20 +294,21 @@ export async function fetchCategoryById(id: string): Promise<Category> {
         if (error instanceof ApiError) {
             throw error;
         }
-        throw CategoryErrors.fetchFailed();
+        throw CategoryErrors.notFound(id);
     }
 }
 
-// Create new item
+// Create a new category
 export async function createCategory(name: string): Promise<Category> {
     try {
-        // Validate input
         validateCategoryData({ name });
 
         const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name }),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: name.trim() }),
         });
 
         return handleApiResponse<Category>(response, "Category", "create");
@@ -257,19 +320,21 @@ export async function createCategory(name: string): Promise<Category> {
     }
 }
 
-// Update existing item
+// Update an existing category
 export async function updateCategory(id: string, name: string): Promise<Category> {
     try {
-        // Validate input
         if (!id) {
-            throw CategoryErrors.invalidName("Category ID is required");
+            throw CategoryErrors.notFound();
         }
+
         validateCategoryData({ name });
 
         const response = await fetch(API_URL, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ _id: id, name }),
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ _id: id, name: name.trim() }),
         });
 
         return handleApiResponse<Category>(response, "Category", "update");
@@ -281,20 +346,50 @@ export async function updateCategory(id: string, name: string): Promise<Category
     }
 }
 
-// Delete item
-export async function deleteCategory(id: string): Promise<void> {
+// Get deletion warning information
+export async function getCategoryDeletionWarning(id: string): Promise<DeletionWarning> {
     try {
         if (!id) {
-            throw CategoryErrors.invalidName("Category ID is required");
+            throw CategoryErrors.notFound();
         }
 
         const response = await fetch(API_URL, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ _id: id }),
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ _id: id, confirmed: false }),
         });
 
-        await handleApiResponse<{ success: boolean }>(response, "Category", "delete");
+        return handleApiResponse<DeletionWarning>(response, "Category", "delete");
+    } catch (error) {
+        if (error instanceof ApiError) {
+            throw error;
+        }
+        throw CategoryErrors.deleteFailed();
+    }
+}
+
+// Delete a category with confirmation
+export async function deleteCategory(id: string, confirmed: boolean = false): Promise<void> {
+    try {
+        if (!id) {
+            throw CategoryErrors.notFound();
+        }
+
+        if (!confirmed) {
+            throw CategoryErrors.deletionNotConfirmed();
+        }
+
+        const response = await fetch(API_URL, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ _id: id, confirmed: true }),
+        });
+
+        await handleApiResponse(response, "Category", "delete");
     } catch (error) {
         if (error instanceof ApiError) {
             throw error;
