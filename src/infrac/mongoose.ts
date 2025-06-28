@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
+import { getMongoDBConfig, buildConnectionString, validateMongoDBConfig } from "@/infrac/mongoose-utils";
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
+// Validate configuration on startup
+validateMongoDBConfig();
 
-if (!MONGODB_URI) {
-    throw new Error("Please define the MONGODB_URI environment variable");
-}
+const config = getMongoDBConfig();
+const connectionString = buildConnectionString(config.uri, config.name);
 
 interface CachedConnection {
     conn: typeof mongoose | null;
@@ -22,9 +23,12 @@ async function dbConnect() {
         return cached.conn;
     }
     if (!cached.promise) {
-        cached.promise = mongoose.connect(MONGODB_URI, {
+        console.log(`🔌 [MONGODB] Connecting to database: ${config.name}`);
+
+        cached.promise = mongoose.connect(connectionString, {
             bufferCommands: false,
         }).then((mongoose) => {
+            console.log(`✅ [MONGODB] Connected to database: ${config.name}`);
             return mongoose;
         });
     }

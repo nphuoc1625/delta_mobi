@@ -76,10 +76,10 @@ export default function CategoryManager() {
     const { loading: updating, error: updateError, execute: executeUpdate } = useUpdateOperation(updateCategory);
     const { loading: deleting, error: deleteError, execute: executeDelete } = useDeleteOperation(deleteCategory);
 
-    // Load categories on mount
+    // Load categories on mount only
     useEffect(() => {
         loadCategories();
-    }, [loadCategories]);
+    }, []); // Empty dependency array to run only on mount
 
     // Update local state when data changes
     useEffect(() => {

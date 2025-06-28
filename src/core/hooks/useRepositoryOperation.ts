@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { ApiError } from "@/core/errors/ApiError";
 
 interface UseRepositoryOperationOptions<T> {
@@ -27,24 +27,32 @@ export function useRepositoryOperation<T>(
     const [data, setData] = useState<T | null>(null);
     const [success, setSuccess] = useState(false);
 
+    // Use refs to stabilize dependencies
+    const operationRef = useRef(operation);
+    const optionsRef = useRef(options);
+
+    // Update refs when props change
+    operationRef.current = operation;
+    optionsRef.current = options;
+
     const execute = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
             setSuccess(false);
 
-            const result = await operation();
+            const result = await operationRef.current();
             setData(result);
             setSuccess(true);
-            options.onSuccess?.(result);
+            optionsRef.current.onSuccess?.(result);
 
         } catch (err: unknown) {
             handleRepositoryError(err, setError);
-            options.onError?.(err instanceof ApiError ? err.message : "An unexpected error occurred");
+            optionsRef.current.onError?.(err instanceof ApiError ? err.message : "An unexpected error occurred");
         } finally {
             setLoading(false);
         }
-    }, [operation, options]);
+    }, []); // No dependencies since we use refs
 
     const reset = useCallback(() => {
         setLoading(false);
@@ -70,59 +78,121 @@ export function useFetchOperation<T>(fetchFn: () => Promise<T>) {
 
 // Hook for create operations
 export function useCreateOperation<T, P>(createFn: (params: P) => Promise<T>) {
-    const [createParams, setCreateParams] = useState<P | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [data, setData] = useState<T | null>(null);
+    const [success, setSuccess] = useState(false);
 
-    const operation = useCallback(() => {
-        if (!createParams) throw new Error("No parameters provided");
-        return createFn(createParams);
-    }, [createFn, createParams]);
+    const execute = useCallback(async (params: P) => {
+        try {
+            setLoading(true);
+            setError(null);
+            setSuccess(false);
 
-    const result = useRepositoryOperation(operation);
+            const result = await createFn(params);
+            setData(result);
+            setSuccess(true);
 
-    const execute = useCallback((params: P) => {
-        setCreateParams(params);
-        return result.execute();
-    }, [result.execute]);
+        } catch (err: unknown) {
+            handleRepositoryError(err, setError);
+        } finally {
+            setLoading(false);
+        }
+    }, [createFn]);
 
-    return { ...result, execute };
+    const reset = useCallback(() => {
+        setLoading(false);
+        setError(null);
+        setData(null);
+        setSuccess(false);
+    }, []);
+
+    return {
+        loading,
+        error,
+        data,
+        success,
+        execute,
+        reset
+    };
 }
 
 // Hook for update operations
 export function useUpdateOperation<T, P>(updateFn: (id: string, params: P) => Promise<T>) {
-    const [updateData, setUpdateData] = useState<{ id: string; params: P } | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [data, setData] = useState<T | null>(null);
+    const [success, setSuccess] = useState(false);
 
-    const operation = useCallback(() => {
-        if (!updateData) throw new Error("No update data provided");
-        return updateFn(updateData.id, updateData.params);
-    }, [updateFn, updateData]);
+    const execute = useCallback(async (id: string, params: P) => {
+        try {
+            setLoading(true);
+            setError(null);
+            setSuccess(false);
 
-    const result = useRepositoryOperation(operation);
+            const result = await updateFn(id, params);
+            setData(result);
+            setSuccess(true);
 
-    const execute = useCallback((id: string, params: P) => {
-        setUpdateData({ id, params });
-        return result.execute();
-    }, [result.execute]);
+        } catch (err: unknown) {
+            handleRepositoryError(err, setError);
+        } finally {
+            setLoading(false);
+        }
+    }, [updateFn]);
 
-    return { ...result, execute };
+    const reset = useCallback(() => {
+        setLoading(false);
+        setError(null);
+        setData(null);
+        setSuccess(false);
+    }, []);
+
+    return {
+        loading,
+        error,
+        data,
+        success,
+        execute,
+        reset
+    };
 }
 
 // Hook for delete operations
 export function useDeleteOperation(deleteFn: (id: string) => Promise<void>) {
-    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
 
-    const operation = useCallback(() => {
-        if (!deleteId) throw new Error("No ID provided");
-        return deleteFn(deleteId);
-    }, [deleteFn, deleteId]);
+    const execute = useCallback(async (id: string) => {
+        try {
+            setLoading(true);
+            setError(null);
+            setSuccess(false);
 
-    const result = useRepositoryOperation(operation);
+            await deleteFn(id);
+            setSuccess(true);
 
-    const execute = useCallback((id: string) => {
-        setDeleteId(id);
-        return result.execute();
-    }, [result.execute]);
+        } catch (err: unknown) {
+            handleRepositoryError(err, setError);
+        } finally {
+            setLoading(false);
+        }
+    }, [deleteFn]);
 
-    return { ...result, execute };
+    const reset = useCallback(() => {
+        setLoading(false);
+        setError(null);
+        setSuccess(false);
+    }, []);
+
+    return {
+        loading,
+        error,
+        success,
+        execute,
+        reset
+    };
 }
 
 // Hook for filtered and paginated data
