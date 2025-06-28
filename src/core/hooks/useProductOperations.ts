@@ -80,7 +80,7 @@ export function useProducts(options: UseProductsOptions = {}) {
 
         // Current state
         filters,
-        pagination
+        currentPagination: pagination
     };
 }
 

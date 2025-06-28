@@ -57,53 +57,6 @@ export default function ProductsView({
 
     return (
         <main className="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-8 py-12 px-4">
-            {/* Search Bar */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mb-4">
-                <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={search}
-                    onChange={(e) => onSearch(e.target.value)}
-                    className="w-full sm:w-1/2 px-5 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow"
-                />
-                {/* Filter Dropdown */}
-                <select
-                    value={selectedFilter}
-                    onChange={(e) => onFilterChange(e.target.value)}
-                    className="px-4 py-3 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow"
-                >
-                    {filters.map((filter) => (
-                        <option key={filter} value={filter} className="bg-gray-800">
-                            {filter}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            {/* Category Section */}
-            <div className="flex gap-3 flex-wrap mb-6">
-                {categories.map((cat) => (
-                    <button
-                        key={cat}
-                        onClick={() => onCategoryChange(cat)}
-                        className={`px-5 py-2 rounded-full font-medium transition border-2 ${selectedCategory === cat
-                            ? "bg-blue-600 border-blue-400 text-white"
-                            : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-blue-900 hover:border-blue-400"
-                            }`}
-                    >
-                        {cat}
-                    </button>
-                ))}
-                {onClearFilters && (
-                    <button
-                        onClick={onClearFilters}
-                        className="px-5 py-2 rounded-full font-medium transition border-2 bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
-                    >
-                        Clear Filters
-                    </button>
-                )}
-            </div>
-
             {/* Product Grid */}
             <LoadingState loading={loading} fallback={<div className="text-center text-gray-400 text-lg py-12">Loading products...</div>}>
                 <>

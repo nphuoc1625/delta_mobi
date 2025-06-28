@@ -29,6 +29,15 @@ Retrieve products with filtering, sorting, and pagination.
 | page      | number  | No       | 1       | Page number                    |
 | limit     | number  | No       | 10      | Items per page (max 100)       |
 
+#### Behavior
+- If `category` is provided, returns products where `category` matches any of the provided IDs.
+- If not provided, returns all products.
+
+#### Example Request
+```
+GET /api/products?category=catid1,catid2
+```
+
 #### Response Format
 ```json
 {

@@ -176,4 +176,12 @@ Business rules for managing products in the DeltaMobi system.
 5. Execute query
 6. Return paginated results
 
+# Product Feature Business Rules
+
+- The product listing page must display a category filter that supports multi-select.
+- The filter must use the current list of categories from the database.
+- When multiple categories are selected, the product list should show products matching any of the selected categories.
+- If no category is selected, all products are shown.
+- The filter UI must allow users to clear all selected categories at once.
+
 This structure ensures consistent, comprehensive product business rules across the project, Sir! 

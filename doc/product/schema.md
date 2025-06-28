@@ -169,3 +169,11 @@ db.products.createIndex({ "name": "text", "category": "text" })
 - Image paths may need URL validation
 
 This schema ensures efficient, scalable product data storage across the project, Sir! 
+
+# Product Schema Documentation
+
+## Product Model
+- `category`: string (category ID, must match an existing category)
+
+## Category Model
+- No changes, but ensure all categories are available for filtering. 

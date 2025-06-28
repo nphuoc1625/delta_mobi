@@ -44,4 +44,13 @@ Products are the core items that customers can browse, search, and purchase. The
 - Inventory management
 - Product images gallery
 - Related products suggestions
-- Product analytics and reporting 
+- Product analytics and reporting
+
+# Product Feature Requirements
+
+## Overview
+- Users must be able to filter products by one or more categories.
+- The list of categories is fetched dynamically from the backend.
+- The filter UI allows multi-selection (not just single category).
+- Filtering by multiple categories returns products that belong to any of the selected categories.
+- The filter UI must allow users to clear all selected categories at once. 

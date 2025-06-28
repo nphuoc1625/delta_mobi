@@ -1,3 +1,41 @@
+# Product UI/UX Documentation
+
+## Layout
+- **Left Sidebar**: Contains all filtering and search controls
+  - Categories multi-select dropdown
+  - Sort options dropdown
+  - Search input field
+  - Clear filters button
+- **Main Content Area**: Displays the product grid and pagination
+
+## Category Filter
+- Multi-select dropdown showing all available categories
+- Selected categories are displayed as chips/tags inside the filter input
+- Users can search/filter the category list in the dropdown
+- Users can clear all selected categories with a single action
+
+## Search and Sort
+- Search input allows users to search by product name or category
+- Sort dropdown with options: "Price: Low to High", "Price: High to Low", "Newest"
+- All controls are organized in the left sidebar for better UX
+
+## Product Grid
+- Responsive grid layout (1-4 columns based on screen size)
+- Product cards with image, name, price, and category
+- Hover effects and transitions
+- "View Details" button on each product card
+
+## Pagination
+- Previous/Next navigation buttons
+- Page indicator showing current page and total pages
+- Results count showing total products and current range
+- Disabled states for navigation when at first/last page
+
+## Responsive Design
+- Sidebar collapses on mobile devices
+- Product grid adapts to different screen sizes
+- All interactive elements are touch-friendly
+
 # UI/UX Documentation - Products
 
 ## Overview
@@ -131,11 +169,6 @@ User interface and experience guidelines for the product management system in De
 ### Filter Components
 **Purpose**: Allow users to filter products
 
-**Category Filter**:
-- Dropdown with all available categories
-- "All Categories" option
-- Clear selection option
-
 **Price Range Filter**:
 - Min price input
 - Max price input
@@ -181,26 +214,6 @@ User interface and experience guidelines for the product management system in De
 - **Product creation**: Redirect to product list
 - **Product update**: Show updated product
 - **Product deletion**: Remove from list with undo option
-
-## Responsive Design
-
-### Mobile (< 768px)
-- Single column product grid
-- Collapsible filters
-- Bottom navigation for pagination
-- Touch-friendly buttons
-
-### Tablet (768px - 1024px)
-- Two-column product grid
-- Sidebar filters
-- Standard pagination
-- Optimized touch targets
-
-### Desktop (> 1024px)
-- Three-column product grid
-- Always-visible filters
-- Full pagination controls
-- Hover effects
 
 ## Accessibility
 
