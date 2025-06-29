@@ -6,27 +6,27 @@
 ## File References
 
 ### **1. Write Requirements**
-- **File**: `doc/feature-name/requirements.md`
+- **File**: `doc/features/feature-name/requirements.md`
 - **Follow**: `rules/requirements.md`
 - **Template**: Use the simple 6-section template
 
 ### **2. Write Business Rules**
-- **File**: `doc/feature-name/br.md`
+- **File**: `doc/features/feature-name/br.md`
 - **Follow**: `rules/requirements.md` (business rules section)
 - **Focus**: Independent entities, relationships, constraints
 
 ### **3. Create API**
-- **File**: `doc/feature-name/api.md`
+- **File**: `doc/features/feature-name/api.md`
 - **Follow**: `rules/api-pattern.md`
 - **Implement**: `src/app/api/feature-name/route.ts`
 
 ### **4. Design Schema**
-- **File**: `doc/feature-name/schema.md`
+- **File**: `doc/features/feature-name/schema.md`
 - **Follow**: `rules/requirements.md` (data structure)
 - **Implement**: `src/data/feature-name/models/`
 
 ### **5. Plan UI/UX**
-- **File**: `doc/feature-name/ui.md`
+- **File**: `doc/features/feature-name/ui.md`
 - **Follow**: `rules/ui-repository.md`
 - **Implement**: `src/components/` and `src/app/feature-name/`
 

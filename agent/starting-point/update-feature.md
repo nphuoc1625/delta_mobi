@@ -4,16 +4,16 @@
 This guide outlines the general steps for updating features using AI assistance in the DeltaMobi project.
 
 ## Prerequisites
-- Feature documentation exists in `doc/feature-name/`
-- Business rules are defined in `doc/feature-name/br.md`
-- API documentation is available in `doc/feature-name/api.md`
-- Database schema is documented in `doc/feature-name/schema.md`
+- Feature documentation exists in `doc/features/feature-name/`
+- Business rules are defined in `doc/features/feature-name/br.md`
+- API documentation is available in `doc/features/feature-name/api.md`
+- Database schema is documented in `doc/features/feature-name/schema.md`
 
 ## Step-by-Step Update Process
 
 ### 1. 📋 **Review Current Documentation**
 ```
-doc/feature-name/
+doc/features/feature-name/
 ├── br.md              # Business Rules - Review first
 ├── api.md             # API Documentation - Check endpoints
 ├── schema.md          # Database Schema - Verify data structure
@@ -21,9 +21,9 @@ doc/feature-name/
 ```
 
 **AI Instructions:**
-- "Review the business rules in `doc/feature-name/br.md`"
-- "Check API documentation in `doc/feature-name/api.md`"
-- "Verify database schema in `doc/feature-name/schema.md`"
+- "Review the business rules in `doc/features/feature-name/br.md`"
+- "Check API documentation in `doc/features/feature-name/api.md`"
+- "Verify database schema in `doc/features/feature-name/schema.md`"
 
 ### 2. 🎯 **Define Update Requirements**
 - What specific changes are needed?
@@ -116,7 +116,7 @@ rules/
 ### 6. 📝 **Update Documentation**
 
 #### A. Business Rules
-- Update `doc/feature-name/br.md` if rules changed
+- Update `doc/features/feature-name/br.md` if rules changed
 - Add new error codes if needed
 - Update validation rules
 
@@ -126,7 +126,7 @@ rules/
 - "Update validation rules for [new requirements]"
 
 #### B. API Documentation
-- Update `doc/feature-name/api.md` with new endpoints
+- Update `doc/features/feature-name/api.md` with new endpoints
 - Add new request/response examples
 - Update error codes list
 
@@ -136,7 +136,7 @@ rules/
 - "Update error codes list with [new codes]"
 
 #### C. Database Schema
-- Update `doc/feature-name/schema.md` if schema changed
+- Update `doc/features/feature-name/schema.md` if schema changed
 - Add new indexes if needed
 - Update validation rules
 
@@ -169,20 +169,20 @@ rules/
 
 ### For Business Rule Updates
 ```
-"Update the business rules in doc/feature-name/br.md to include [new requirement]. 
+"Update the business rules in doc/features/feature-name/br.md to include [new requirement]. 
 Follow the existing format and add appropriate error codes."
 ```
 
 ### For API Updates
 ```
-"Update the API documentation in doc/feature-name/api.md for [new functionality]. 
+"Update the API documentation in doc/features/feature-name/api.md for [new functionality]. 
 Add new endpoints, request/response examples, and error codes following the existing format."
 ```
 
 ### For Implementation
 ```
 "Implement [new functionality] for the [Feature] following:
-- Business rules from doc/feature-name/br.md
+- Business rules from doc/features/feature-name/br.md
 - API patterns from rules/api-pattern.md
 - Repository pattern from rules/repository.md
 - UI repository pattern from rules/ui-repository.md"
@@ -191,9 +191,9 @@ Add new endpoints, request/response examples, and error codes following the exis
 ### For Testing
 ```
 "Test the [Feature] implementation against:
-- Business rules in doc/feature-name/br.md
-- API documentation in doc/feature-name/api.md
-- Database schema in doc/feature-name/schema.md"
+- Business rules in doc/features/feature-name/br.md
+- API documentation in doc/features/feature-name/api.md
+- Database schema in doc/features/feature-name/schema.md"
 ```
 
 ## Common Update Scenarios
