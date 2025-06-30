@@ -1,82 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DeltaMobi
 
-# How to Run This Project
+**DeltaMobi** is a modern, scalable web platform designed to streamline product, category, and order management for e-commerce and inventory-driven businesses.
 
-## Prerequisites
-- [Node.js](https://nodejs.org/) (version 18 or higher recommended)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+## Purpose & Vision
+DeltaMobi aims to provide a robust, flexible backend and admin interface for managing products, categories, and user orders. The platform is built for:
+- E-commerce businesses
+- Inventory managers
+- Developers seeking a customizable, modular foundation for commerce applications
 
-## 1. Install Dependencies
+Our vision is to empower teams with a reliable, extensible system that supports rapid growth and evolving business needs.
 
-```bash
-npm install
-```
-_or, if you prefer yarn:_
-```bash
-yarn install
-```
+## Core Features
+- **Product Management:** Create, update, and organize products with rich metadata and images
+- **Category & Group Category Management:** Hierarchical and flexible category structures
+- **Order Management:** Track and manage customer orders (extensible for future needs)
+- **Repository Pattern:** Clean separation of data access and business logic
+- **Modern UI:** Responsive, accessible, and easy to use
+- **Environment-based Configuration:** Seamless switching between development, staging, and production
 
-## 2. Run the Development Server
+## Tech Stack
+- **Frontend:** Next.js (App Router), React, Tailwind CSS
+- **Backend:** Next.js API routes (Node.js)
+- **Database:** MongoDB (with Mongoose ODM)
+- **Language:** TypeScript
+- **Deployment:** Vercel (optimized), Node.js server
 
-```bash
-npm run dev
-```
-_or, if you prefer yarn:_
-```bash
-yarn dev
-```
+## Architecture Overview
+- **Monorepo Structure:** Modular organization for scalability
+- **Repository Pattern:** All data access and business logic is encapsulated in repository modules
+- **API-First:** Clean separation between UI and data layers
+- **Documentation-Driven:** All business rules, requirements, and API contracts are documented in the `doc/` and `rules/` folders
 
-The app will be running at [http://localhost:3000](http://localhost:3000)
-
-## 3. Build for Production
-
-```bash
-npm run build
-npm start
-```
-_or, with yarn:_
-```bash
-yarn build
-yarn start
-```
-
-## 4. Additional Notes
-- To customize environment variables, create a `.env.local` file in the project root.
-- For more information, see the [Next.js documentation](https://nextjs.org/docs).
+## Learn More
+- **Setup & Deployment:** See `doc/setup/`
+- **Business Rules & Features:** See `doc/features/`
+- **Contribution Guidelines:** See `rules/`
 
 ---
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details. 
+© DeltaMobi Project. Built with Next.js, MongoDB, and ❤️ 
