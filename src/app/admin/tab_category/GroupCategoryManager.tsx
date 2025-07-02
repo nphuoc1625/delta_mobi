@@ -11,6 +11,7 @@ import { Category, fetchAllCategories } from "@/data/category/repository/categor
 import { HiTrash } from "react-icons/hi";
 import Loading from "./Loading";
 import CategoryMultiSelect from "@/components/CategoryMultiSelect";
+import { useTheme } from "@/core/theme/ThemeContext";
 
 function GroupCategoryItem({
     group,
@@ -87,6 +88,7 @@ function GroupCategoryItem({
 }
 
 export default function GroupCategoryManager() {
+    const { colors } = useTheme();
     const [groupCategories, setGroupCategories] = useState<GroupCategory[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [newGroupName, setNewGroupName] = useState("");
@@ -175,8 +177,8 @@ export default function GroupCategoryManager() {
     }
 
     return (
-        <div>
-            <h3 className="text-xl font-bold mb-4">Group Categories</h3>
+        <div style={{ background: colors.background, color: colors.foreground, borderRadius: '1rem', padding: '1rem', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: `1px solid ${colors.border}` }}>
+            <h3 style={{ color: colors.primary, fontWeight: 700, fontSize: '1.25rem', marginBottom: '1rem' }}>Group Categories</h3>
             <form
                 onSubmit={handleAddGroupCategory}
                 className={`flex flex-row gap-2 mb-4 w-full items-center${editGroupId ? ' hidden' : ''}`}

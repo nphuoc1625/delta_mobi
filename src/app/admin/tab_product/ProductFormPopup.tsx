@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Product } from "@/data/product/repositories/productRepository";
 import { Category, fetchAllCategories } from "@/data/category/repository/categoryRepository";
 import CategoryMultiSelect from "@/components/CategoryMultiSelect";
+import { useTheme } from "@/core/theme/ThemeContext";
 
 interface Props {
     open: boolean;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function ProductFormPopup({ open, onClose, onSubmit, initialProduct }: Props) {
+    const { colors } = useTheme();
     const [form, setForm] = useState<Omit<Product, '_id'> & { _id?: string }>({ name: "", category: "", price: 0, image: "", createdAt: "", updatedAt: "" });
     const [errors, setErrors] = useState<{ [k: string]: string }>({});
     const [submitting, setSubmitting] = useState(false);
@@ -61,34 +63,33 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
     }
 
     const handleCategorySelection = (selectedIds: string[]) => {
-        // For single category selection, take the first selected category
         setForm(prev => ({ ...prev, category: selectedIds[0] || "" }));
     };
 
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
-                <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-lg font-bold">{initialProduct ? "Edit Product" : "Add Product"}</h4>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: colors.background, color: colors.foreground, borderRadius: '1rem', boxShadow: '0 4px 32px rgba(0,0,0,0.18)', border: `1.5px solid ${colors.border}`, padding: '2rem', width: '100%', maxWidth: '28rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h4 style={{ fontSize: '1.125rem', fontWeight: 700 }}>{initialProduct ? "Edit Product" : "Add Product"}</h4>
+                    <button onClick={onClose} style={{ color: colors.secondary, background: 'none', border: 'none', fontSize: '1.25rem', cursor: 'pointer' }}>✕</button>
                 </div>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div>
-                        <label className="block text-sm mb-1">Name</label>
+                        <label style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem' }}>Name</label>
                         <input
                             type="text"
                             value={form.name}
                             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                            className="w-full px-3 py-2 rounded bg-gray-800 text-white focus:outline-none"
+                            style={{ width: '100%', padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.muted, color: colors.foreground, border: `1px solid ${colors.border}` }}
                         />
-                        {errors.name && <div className="text-red-400 text-xs mt-1">{errors.name}</div>}
+                        {errors.name && <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.25rem' }}>{errors.name}</div>}
                     </div>
                     <div>
-                        <label className="block text-sm mb-1">Category</label>
+                        <label style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem' }}>Category</label>
                         {categoryLoading ? (
-                            <div className="text-gray-400 text-sm">Loading categories...</div>
+                            <div style={{ color: colors.secondary, fontSize: '0.95rem' }}>Loading categories...</div>
                         ) : (
                             <CategoryMultiSelect
                                 categories={categories}
@@ -97,34 +98,34 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
                                 placeholder="Select a category..."
                             />
                         )}
-                        {errors.category && <div className="text-red-400 text-xs mt-1">{errors.category}</div>}
+                        {errors.category && <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.25rem' }}>{errors.category}</div>}
                     </div>
                     <div>
-                        <label className="block text-sm mb-1">Price</label>
+                        <label style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem' }}>Price</label>
                         <input
                             type="number"
                             value={form.price}
                             onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))}
-                            className="w-full px-3 py-2 rounded bg-gray-800 text-white focus:outline-none"
+                            style={{ width: '100%', padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.muted, color: colors.foreground, border: `1px solid ${colors.border}` }}
                             min={0}
                             step={0.01}
                         />
-                        {errors.price && <div className="text-red-400 text-xs mt-1">{errors.price}</div>}
+                        {errors.price && <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.25rem' }}>{errors.price}</div>}
                     </div>
                     <div>
-                        <label className="block text-sm mb-1">Image URL</label>
+                        <label style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem' }}>Image URL</label>
                         <input
                             type="text"
                             value={form.image}
                             onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
-                            className="w-full px-3 py-2 rounded bg-gray-800 text-white focus:outline-none"
+                            style={{ width: '100%', padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.muted, color: colors.foreground, border: `1px solid ${colors.border}` }}
                         />
-                        {errors.image && <div className="text-red-400 text-xs mt-1">{errors.image}</div>}
+                        {errors.image && <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.25rem' }}>{errors.image}</div>}
                     </div>
-                    <div className="flex justify-end gap-2 mt-2">
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
                         <button
                             type="button"
-                            className="px-4 py-2 rounded bg-gray-700 text-white hover:bg-gray-600"
+                            style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.muted, color: colors.foreground, border: 'none', fontWeight: 500, cursor: 'pointer' }}
                             onClick={onClose}
                             disabled={submitting}
                         >
@@ -132,7 +133,7 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-semibold"
+                            style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.primary, color: colors.foreground, border: 'none', fontWeight: 600, cursor: 'pointer' }}
                             disabled={submitting}
                         >
                             {submitting ? "Saving..." : initialProduct ? "Update" : "Add"}

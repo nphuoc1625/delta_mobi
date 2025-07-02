@@ -26,13 +26,13 @@ export const light: Colors = {
 
 export const dark: Colors = {
     primary: '#facc15',      // yellow-400 for primary text
-    secondary: '#94a3b8',    // slate-400
+    secondary: '#f1f5f9',    // light slate-100 for secondary text
     error: '#f87171',        // red-400
     warning: '#fbbf24',      // yellow-400
     info: '#38bdf8',         // sky-400
     success: '#4ade80',      // green-400
-    background: '#ffffff',   // white for background (as requested)
-    foreground: '#000000',   // black for container/text
-    border: '#334155',       // slate-700
-    muted: '#1e293b',        // slate-800
+    background: '#18181b',   // dark gray background
+    foreground: '#f4f4f5',   // light gray/white for text
+    border: '#27272a',       // dark border
+    muted: '#27272a',        // dark muted
 };

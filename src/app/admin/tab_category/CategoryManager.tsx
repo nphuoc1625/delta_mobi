@@ -7,6 +7,7 @@ import { useRepositoryOperation, useCreateOperation, useUpdateOperation, useDele
 import { ErrorDisplay } from "@/components/states/ErrorDisplay";
 import { LoadingState } from "@/components/states/LoadingState";
 import SearchBar from "@/components/inputs/SearchBar";
+import { useTheme } from "@/core/theme/ThemeContext";
 
 function ItemView({
     cat,
@@ -27,20 +28,21 @@ function ItemView({
     onSubmit: (e: React.FormEvent) => void;
     onCancel: () => void;
 }) {
+    const { colors } = useTheme();
     if (isEditing) {
         return (
-            <li className="bg-gray-800 rounded-lg p-4 shadow flex flex-col gap-2 w-full">
-                <form onSubmit={onSubmit} className="flex flex-col gap-2 w-full">
+            <li style={{ background: colors.muted, borderRadius: '0.75rem', padding: '1rem', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', width: '100%' }}>
+                <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
                     <input
                         type="text"
                         value={editCategoryName}
                         onChange={e => setEditCategoryName(e.target.value)}
-                        className="px-4 py-2 rounded bg-gray-900 text-white focus:outline-none w-full"
+                        style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.background, color: colors.foreground, border: `1px solid ${colors.border}`, width: '100%' }}
                         autoFocus
                     />
-                    <div className="flex gap-2 w-full">
-                        <button type="submit" className="flex-1 px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 font-semibold">Update</button>
-                        <button type="button" className="px-4 py-2 rounded bg-gray-700 font-semibold" onClick={onCancel}>Cancel</button>
+                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                        <button type="submit" style={{ flex: 1, padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.primary, color: colors.foreground, fontWeight: 600, border: 'none' }}>Update</button>
+                        <button type="button" style={{ flex: 1, padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.muted, color: colors.foreground, fontWeight: 600, border: 'none' }} onClick={onCancel}>Cancel</button>
                     </div>
                 </form>
             </li>
@@ -48,16 +50,16 @@ function ItemView({
     }
     return (
         <li
-            className="bg-gray-800 rounded-lg p-4 shadow flex items-center justify-between w-full cursor-pointer hover:ring-2 hover:ring-blue-400 transition"
+            style={{ background: colors.muted, borderRadius: '0.75rem', padding: '1rem', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', cursor: 'pointer', border: `1.5px solid ${colors.border}` }}
             onClick={onEdit}
         >
-            <span className="font-medium text-base text-blue-200 truncate w-full">{cat.name}</span>
+            <span style={{ fontWeight: 500, fontSize: '1rem', color: colors.primary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cat.name}</span>
             <button
-                className="ml-2 p-1 rounded hover:bg-red-700 transition"
+                style={{ marginLeft: '0.5rem', padding: '0.25rem', borderRadius: '0.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
                 onClick={e => { e.stopPropagation(); onDelete(); }}
                 aria-label="Delete category"
             >
-                <HiTrash className="w-5 h-5 text-red-400" />
+                <HiTrash className="w-5 h-5" style={{ color: '#f87171' }} />
             </button>
         </li>
     );
@@ -87,6 +89,8 @@ export default function CategoryManager() {
             setCategories(data);
         }
     }, [data]);
+
+    const { colors } = useTheme();
 
     async function handleAddCategory(e: React.FormEvent) {
         e.preventDefault();

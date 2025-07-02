@@ -7,8 +7,10 @@ import ProductFilters from "@/components/ProductFilters";
 import { ProductFilterState, DEFAULT_PRODUCT_FILTER, productFilterToParams } from "@/data/product/models/ProductFilter";
 import Image from "next/image";
 import { useProducts, useProductCreate, useProductUpdate } from "@/core/hooks/useProductOperations";
+import { useTheme } from "@/core/theme/ThemeContext";
 
 export default function ProductsView() {
+    const { colors } = useTheme();
     const [categories, setCategories] = useState<Category[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [editProduct, setEditProduct] = useState<Product | null>(null);
@@ -76,11 +78,10 @@ export default function ProductsView() {
 
     return (
         <section>
-            <h2 className="text-2xl font-semibold mb-4">Manage Products</h2>
-            <div className="bg-gray-900 rounded-xl p-8 shadow border border-gray-800 text-gray-300">
+            <h2 style={{ color: colors.primary, fontWeight: 600, fontSize: '1.5rem', marginBottom: '1rem' }}>Manage Products</h2>
+            <div style={{ background: colors.background, color: colors.foreground, borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: `1px solid ${colors.border}` }}>
                 {/* Search and Filter Section */}
-                <div className="mb-6 space-y-4">
-                    {/* Filter Options - Always Visible */}
+                <div style={{ marginBottom: '1.5rem' }}>
                     <ProductFilters
                         categories={categories}
                         searchTerm={filters.search}
@@ -94,7 +95,7 @@ export default function ProductsView() {
 
                 {/* Results Summary */}
                 {hasActiveFilters && (
-                    <div className="mb-4 text-sm text-gray-400">
+                    <div style={{ marginBottom: '1rem', fontSize: '0.95rem', color: colors.secondary }}>
                         Showing {products.length} products
                         {filters.search && ` matching "${filters.search}"`}
                         {filters.category && ` in category "${filters.category}"`}
@@ -102,42 +103,63 @@ export default function ProductsView() {
                 )}
 
                 {/* Add Product Button */}
-                <div className="flex flex-row gap-2 mb-4 w-full items-center">
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '0.5rem', marginBottom: '1rem', width: '100%', alignItems: 'center' }}>
                     <button
                         type="button"
-                        className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-700 font-semibold text-sm flex-shrink-0"
-                        style={{ minWidth: "64px" }}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            borderRadius: '0.5rem',
+                            background: colors.primary,
+                            color: colors.foreground,
+                            fontWeight: 600,
+                            fontSize: '0.95rem',
+                            minWidth: '64px',
+                            border: 'none',
+                            cursor: 'pointer',
+                        }}
                         onClick={() => { setEditProduct(null); setShowForm(true); }}
                     >
                         + Add Product
                     </button>
                 </div>
 
-                {error && <div className="text-red-400 mb-2">{error}</div>}
+                {error && <div style={{ color: '#f87171', marginBottom: '0.5rem' }}>{error}</div>}
 
                 {loading ? (
                     <Loading />
                 ) : products.length === 0 ? (
-                    <div className="flex items-center justify-center min-h-[120px] text-gray-500 text-lg">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '120px', color: colors.secondary, fontSize: '1.1rem' }}>
                         {hasActiveFilters ? "No products match your filters." : "No products found."}
                     </div>
                 ) : (
-                    <ul className="flex flex-col gap-2">
+                    <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {products.map((product) => (
                             <li
                                 key={product._id}
-                                className="bg-gray-800 rounded-lg p-4 shadow flex items-center justify-between w-full cursor-pointer hover:ring-2 hover:ring-blue-400 transition"
+                                style={{
+                                    background: colors.muted,
+                                    borderRadius: '0.75rem',
+                                    padding: '1rem',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    cursor: 'pointer',
+                                    border: `1.5px solid ${colors.border}`,
+                                    transition: 'box-shadow 0.2s',
+                                }}
                                 onClick={() => { setEditProduct(product); setShowForm(true); }}
                             >
-                                <div className="flex items-center gap-3 w-full">
-                                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-700 flex items-center justify-center">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
+                                    <div style={{ width: '3rem', height: '3rem', borderRadius: '0.5rem', overflow: 'hidden', background: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                         {product.image ? (
                                             <Image
                                                 src={product.image}
                                                 alt={product.name}
                                                 width={48}
                                                 height={48}
-                                                className="w-full h-full object-cover"
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                 onError={(e) => {
                                                     e.currentTarget.style.display = 'none';
                                                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -145,16 +167,17 @@ export default function ProductsView() {
                                             />
                                         ) : null}
                                         <svg
-                                            className={`w-6 h-6 text-gray-400 ${product.image ? 'hidden' : ''}`}
+                                            className={`w-6 h-6 ${product.image ? 'hidden' : ''}`}
                                             fill="currentColor"
                                             viewBox="0 0 20 20"
+                                            style={{ color: colors.secondary }}
                                         >
                                             <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                                         </svg>
                                     </div>
-                                    <span className="font-medium text-base text-blue-200 truncate flex-1">{product.name} <span className="text-gray-400">(${product.price})</span></span>
+                                    <span style={{ fontWeight: 500, fontSize: '1rem', color: colors.primary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name} <span style={{ color: colors.secondary }}>${product.price}</span></span>
                                 </div>
-                                <span className="ml-2 text-xs bg-gray-700 px-2 py-1 rounded flex-shrink-0">{product.category}</span>
+                                <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', background: colors.background, color: colors.secondary, padding: '0.25rem 0.75rem', borderRadius: '0.5rem', flexShrink: 0 }}>{product.category}</span>
                             </li>
                         ))}
                     </ul>
