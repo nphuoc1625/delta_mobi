@@ -1,5 +1,6 @@
 import { Category } from "@/data/category/repository/categoryRepository";
 import SearchBar from "./inputs/SearchBar";
+import { useTheme } from "@/core/theme/ThemeContext";
 
 interface ProductFiltersProps {
     categories: Category[];
@@ -20,13 +21,14 @@ export default function ProductFilters({
     onClearFilters,
     hasActiveFilters
 }: ProductFiltersProps) {
+    const { colors } = useTheme();
     return (
-        <div className=" rounded-lg    ">
+        <div className="rounded-lg">
             <div className="flex items-center justify-between mb-4">
                 {hasActiveFilters && (
                     <button
                         onClick={onClearFilters}
-                        className="text-sm text-gray-400 hover:text-white underline"
+                        className="text-sm text-gray-400 hover:text-white underline whitespace-nowrap"
                     >
                         Clear all filters
                     </button>
@@ -34,21 +36,23 @@ export default function ProductFilters({
             </div>
             <div className="space-y-4">
                 {/* Search Bar */}
-                <div>
+                <div className="w-full">
                     <SearchBar
                         value={searchTerm}
                         onChange={onSearchChange}
-                        placeholder="Search products by name or category..."
+                        placeholder="Search products..."
+                        className="w-full"
                     />
                 </div>
 
                 {/* Category Filter */}
-                <div>
+                <div className="w-full">
                     <label className="block text-xs text-gray-400 mb-2">Category</label>
                     <select
                         value={selectedCategory}
                         onChange={(e) => onCategoryChange(e.target.value)}
-                        className="w-full px-3 py-2 rounded bg-gray-900 text-white text-sm border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        style={{ backgroundColor: colors.background, color: colors.foreground, border: `1px solid ${colors.border}` }}
+                        className="w-full px-3 py-2 rounded bg-gray-900 text-white text-sm border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-full"
                     >
                         <option value="">All Categories</option>
                         {categories.map((category) => (

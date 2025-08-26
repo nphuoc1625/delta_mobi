@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/infrac/mongoose";
-import Product from "@/data/product/models/Product.model";
+import dbConnect from "@/infrastructure/mongodb/mongoose";
+import Product from "@/infrastructure/mongodb/tables/Product.model";
 import { validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
 import { handleProductError, validateProductData } from "./errors";
 

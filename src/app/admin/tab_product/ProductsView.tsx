@@ -1,19 +1,23 @@
 import { useEffect, useState, useCallback } from "react";
-import Loading from "../tab_category/Loading";
 import ProductFormPopup from "./ProductFormPopup";
 import { Product } from "@/data/product/repositories/productRepository";
 import { Category, fetchAllCategories } from "@/data/category/repository/categoryRepository";
 import ProductFilters from "@/components/ProductFilters";
 import { ProductFilterState, DEFAULT_PRODUCT_FILTER, productFilterToParams } from "@/data/product/models/ProductFilter";
-import Image from "next/image";
-import { useProducts, useProductCreate, useProductUpdate } from "@/core/hooks/useProductOperations";
+import { useProducts, useProductCreate, useProductUpdate, useProductDelete } from "@/core/hooks/useProductOperations";
 import { useTheme } from "@/core/theme/ThemeContext";
+import { LoadingState } from "@/components/states/LoadingState";
+import { AdminProductItem } from "@/components/product/admin/product_item";
+import DeleteDialog from "@/components/dialogs/delete_product_dialog";
 
 export default function ProductsView() {
     const { colors } = useTheme();
     const [categories, setCategories] = useState<Category[]>([]);
     const [showForm, setShowForm] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [editProduct, setEditProduct] = useState<Product | null>(null);
+    const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Use the new products hook
     const {
@@ -24,9 +28,10 @@ export default function ProductsView() {
         updateFilters
     } = useProducts();
 
-    // Use separate hooks for create/update operations
+    // Use separate hooks for create/update/delete operations
     const { execute: createProduct } = useProductCreate();
     const { execute: updateProduct } = useProductUpdate();
+    const { execute: deleteProductOperation, loading: deleteLoading } = useProductDelete();
 
     // Filter state
     const [filters, setFilters] = useState<ProductFilterState>(DEFAULT_PRODUCT_FILTER);
@@ -50,6 +55,16 @@ export default function ProductsView() {
         updateFilters(params);
     }, [filters, updateFilters]);
 
+    // Clear success message after 3 seconds
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage(null);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
+
     async function handleFormSubmit(product: Omit<Product, '_id'> & { _id?: string }) {
         try {
             if (product._id) {
@@ -68,6 +83,41 @@ export default function ProductsView() {
         }
     }
 
+    // Handle delete product
+    const handleDeleteProduct = async () => {
+        if (!deleteProduct) return;
+
+        try {
+            // Execute the delete operation
+            await deleteProductOperation(deleteProduct._id);
+
+            // Close the dialog and clear selection
+            setShowDeleteDialog(false);
+            setDeleteProduct(null);
+
+            // Refresh products after deletion
+            fetchProducts();
+
+            // Show success message
+            setSuccessMessage(`Product "${deleteProduct.name}" deleted successfully`);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to delete product';
+            alert(errorMessage);
+        }
+    };
+
+    // Handle delete dialog open
+    const handleDeleteClick = (product: Product) => {
+        setDeleteProduct(product);
+        setShowDeleteDialog(true);
+    };
+
+    // Handle delete dialog close
+    const handleDeleteCancel = () => {
+        setShowDeleteDialog(false);
+        setDeleteProduct(null);
+    };
+
     // Clear all filters
     const clearFilters = () => {
         setFilters(DEFAULT_PRODUCT_FILTER);
@@ -80,6 +130,23 @@ export default function ProductsView() {
         <section>
             <h2 style={{ color: colors.primary, fontWeight: 600, fontSize: '1.5rem', marginBottom: '1rem' }}>Manage Products</h2>
             <div style={{ background: colors.background, color: colors.foreground, borderRadius: '1rem', padding: '2rem', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: `1px solid ${colors.border}` }}>
+                {/* Success Message */}
+                {successMessage && (
+                    <div style={{
+                        background: '#22c55e',
+                        color: 'white',
+                        padding: '0.75rem 1rem',
+                        borderRadius: '0.5rem',
+                        marginBottom: '1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}>
+                        <span>✅</span>
+                        {successMessage}
+                    </div>
+                )}
+
                 {/* Search and Filter Section */}
                 <div style={{ marginBottom: '1.5rem' }}>
                     <ProductFilters
@@ -125,69 +192,39 @@ export default function ProductsView() {
 
                 {error && <div style={{ color: '#f87171', marginBottom: '0.5rem' }}>{error}</div>}
 
-                {loading ? (
-                    <Loading />
-                ) : products.length === 0 ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '120px', color: colors.secondary, fontSize: '1.1rem' }}>
-                        {hasActiveFilters ? "No products match your filters." : "No products found."}
-                    </div>
-                ) : (
-                    <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {products.map((product) => (
-                            <li
-                                key={product._id}
-                                style={{
-                                    background: colors.muted,
-                                    borderRadius: '0.75rem',
-                                    padding: '1rem',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    width: '100%',
-                                    cursor: 'pointer',
-                                    border: `1.5px solid ${colors.border}`,
-                                    transition: 'box-shadow 0.2s',
-                                }}
-                                onClick={() => { setEditProduct(product); setShowForm(true); }}
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
-                                    <div style={{ width: '3rem', height: '3rem', borderRadius: '0.5rem', overflow: 'hidden', background: colors.background, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                        {product.image ? (
-                                            <Image
-                                                src={product.image}
-                                                alt={product.name}
-                                                width={48}
-                                                height={48}
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                                }}
-                                            />
-                                        ) : null}
-                                        <svg
-                                            className={`w-6 h-6 ${product.image ? 'hidden' : ''}`}
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                            style={{ color: colors.secondary }}
-                                        >
-                                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <span style={{ fontWeight: 500, fontSize: '1rem', color: colors.primary, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name} <span style={{ color: colors.secondary }}>${product.price}</span></span>
-                                </div>
-                                <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', background: colors.background, color: colors.secondary, padding: '0.25rem 0.75rem', borderRadius: '0.5rem', flexShrink: 0 }}>{product.category}</span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                <LoadingState loading={loading} >
+                    {products.length === 0 ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '120px', color: colors.secondary, fontSize: '1.1rem' }}>
+                            {hasActiveFilters ? "No products match your filters." : "No products found."}
+                        </div>
+                    ) : (
+                        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            {products.map((product) => (
+                                <AdminProductItem
+                                    key={product._id}
+                                    product={product}
+                                    colors={colors}
+                                    onClick={() => { setEditProduct(product); setShowForm(true); }}
+                                    onDelete={() => handleDeleteClick(product)}
+                                />
+                            ))}
+                        </ul>
+                    )}
+                </LoadingState>
 
                 <ProductFormPopup
                     open={showForm}
                     onClose={() => { setShowForm(false); setEditProduct(null); }}
                     onSubmit={handleFormSubmit}
                     initialProduct={editProduct}
+                />
+
+                <DeleteDialog
+                    open={showDeleteDialog}
+                    onAccept={handleDeleteProduct}
+                    onCancel={handleDeleteCancel}
+                    productName={deleteProduct?.name}
+                    loading={deleteLoading}
                 />
             </div>
         </section>

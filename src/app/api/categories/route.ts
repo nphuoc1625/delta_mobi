@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/infrac/mongoose";
-import Category from "@/data/category/models/Category.model";
-import GroupCategory from "@/data/group_category/models/GroupCategory.model";
+import dbConnect from "@/infrastructure/mongodb/mongoose";
+import Category from "@/infrastructure/mongodb/tables/Category.model";
+import GroupCategory from "@/infrastructure/mongodb/tables/GroupCategory.model";
 import { validateRequiredId, validateEntityExists } from "@/core/errors/ApiError";
 import { handleCategoryError, validateCategoryData } from "./errors";
 

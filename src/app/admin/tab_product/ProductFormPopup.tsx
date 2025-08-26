@@ -106,9 +106,9 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
                             type="number"
                             value={form.price}
                             onChange={e => setForm(f => ({ ...f, price: Number(e.target.value) }))}
+                            placeholder="Enter price"
                             style={{ width: '100%', padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.muted, color: colors.foreground, border: `1px solid ${colors.border}` }}
-                            min={0}
-                            step={0.01}
+
                         />
                         {errors.price && <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.25rem' }}>{errors.price}</div>}
                     </div>

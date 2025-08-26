@@ -8,7 +8,7 @@ import { LoadingState } from "@/components/states/LoadingState";
 import { ErrorDisplay } from "@/components/states/ErrorDisplay";
 import Link from "next/link";
 import { useTheme } from "@/core/theme/ThemeContext";
-
+import CustomImage from "@/components/reusable/custom_image";
 export default function Home() {
   const {
     products,
@@ -74,12 +74,26 @@ export default function Home() {
                 </div>
               ) : (
                 products.map((product) => (
-                  <div key={product._id} style={{ background: colors.background, color: colors.foreground, borderRadius: '1rem', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: `1px solid ${colors.border}`, hover: { scale: '105%', shadow: colors.primary } }}>
-                    <Image
+                  <div
+                    key={product._id}
+                    style={{
+                      background: colors.background,
+                      color: colors.foreground,
+                      borderRadius: '1rem',
+                      padding: '2rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                      border: `1px solid ${colors.border}`,
+                    }}
+                    className="transition-transform hover:scale-105 hover:shadow-lg"
+                  >
+                    <CustomImage
                       src={product.image}
                       alt={product.name}
-                      width={72}
-                      height={72}
+                      width={48}
+                      height={48}
                       className="mb-6"
                     />
                     <h3 style={{ color: colors.primary }} className="text-xl font-bold mb-2">{product.name}</h3>

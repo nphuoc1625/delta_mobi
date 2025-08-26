@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { getMongoDBConfig, buildConnectionString, validateMongoDBConfig } from "@/infrac/mongoose-utils";
+import { getMongoDBConfig, buildConnectionString, validateMongoDBConfig } from "@/infrastructure/mongodb/mongoose-utils";
 
 // Validate configuration on startup
 validateMongoDBConfig();

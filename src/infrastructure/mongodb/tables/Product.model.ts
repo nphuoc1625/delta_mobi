@@ -31,9 +31,7 @@ const ProductSchema = new Schema({
     },
     image: {
         type: String,
-        required: [true, "Product image is required"],
         trim: true,
-        minlength: [1, "Product image cannot be empty"]
     }
 }, {
     timestamps: true,
