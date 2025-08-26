@@ -107,6 +107,31 @@ export async function PATCH(req: Request) {
     }
 }
 
+// Helper function to delete product image file
+async function deleteProductImage(imageUrl: string): Promise<void> {
+    if (!imageUrl || !imageUrl.startsWith('/uploads/')) {
+        return; // Skip if not a local upload
+    }
+
+    try {
+        const { unlink } = await import('fs/promises');
+        const { join } = await import('path');
+        const { existsSync } = await import('fs');
+
+        const uploadsDir = join(process.cwd(), 'public', 'uploads');
+        const fileName = imageUrl.split('/').pop();
+        const imagePath = join(uploadsDir, fileName!);
+
+        if (existsSync(imagePath)) {
+            await unlink(imagePath);
+            console.log(`🗑️ [PRODUCTS API] Deleted product image: ${fileName}`);
+        }
+    } catch (error) {
+        console.error(`❌ [PRODUCTS API] Failed to delete product image: ${imageUrl}`, error);
+        // Don't throw error - image deletion failure shouldn't prevent product deletion
+    }
+}
+
 export async function DELETE(req: Request) {
     console.log("🗑️ [PRODUCTS API] DELETE request received");
     try {
@@ -122,6 +147,10 @@ export async function DELETE(req: Request) {
         validateEntityExists(product, "Product");
 
         console.log("✅ [PRODUCTS API] Product deleted successfully:", product);
+        // Delete the product image file if it exists
+        if (product.image) {
+            await deleteProductImage(product.image);
+        }
         return NextResponse.json({
             success: true,
             message: "Product deleted successfully",

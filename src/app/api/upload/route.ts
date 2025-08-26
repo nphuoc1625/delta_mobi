@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
         const file = formData.get('file') as File;
-        
+
         if (!file) {
             return NextResponse.json(
                 { error: 'No file provided' },
@@ -41,14 +41,14 @@ export async function POST(request: NextRequest) {
         // Generate unique filename
         const timestamp = Date.now();
         const randomString = Math.random().toString(36).substring(2, 15);
-        const fileExtension = file.name.split('.').pop();
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
         const fileName = `${timestamp}_${randomString}.${fileExtension}`;
-        
+
         // Save file to public/uploads directory
         const filePath = join(uploadsDir, fileName);
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        
+
         await writeFile(filePath, buffer);
 
         // Return the public URL
@@ -59,7 +59,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             url: publicUrl,
-            fileName: fileName
+            fileName: fileName,
+            fileSize: file.size,
+            fileType: file.type
         });
 
     } catch (error) {
@@ -73,5 +75,12 @@ export async function POST(request: NextRequest) {
 
 // Handle OPTIONS request for CORS
 export async function OPTIONS() {
-    return new NextResponse(null, { status: 200 });
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        }
+    });
 }

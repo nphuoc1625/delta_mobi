@@ -3,6 +3,7 @@ import { Product } from "@/data/product/repositories/productRepository";
 import { Category, fetchAllCategories } from "@/data/category/repository/categoryRepository";
 import CategoryMultiSelect from "@/components/CategoryMultiSelect";
 import { useTheme } from "@/core/theme/ThemeContext";
+import ImageUpload from "@/components/ImageUpload";
 
 interface Props {
     open: boolean;
@@ -50,6 +51,7 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
         if (!form.name.trim()) errs.name = "Name is required";
         if (!form.category.trim()) errs.category = "Category is required";
         if (form.price <= 0) errs.price = "Price must be greater than 0";
+        // Image is optional, so no validation needed
         setErrors(errs);
         return Object.keys(errs).length === 0;
     }
@@ -64,6 +66,18 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
 
     const handleCategorySelection = (selectedIds: string[]) => {
         setForm(prev => ({ ...prev, category: selectedIds[0] || "" }));
+    };
+
+    const handleImageChange = (imageUrl: string) => {
+        setForm(prev => ({ ...prev, image: imageUrl }));
+        // Clear any previous image errors
+        if (errors.image) {
+            setErrors(prev => ({ ...prev, image: "" }));
+        }
+    };
+
+    const handleImageError = (error: string) => {
+        setErrors(prev => ({ ...prev, image: error }));
     };
 
     if (!open) return null;
@@ -113,12 +127,12 @@ export default function ProductFormPopup({ open, onClose, onSubmit, initialProdu
                         {errors.price && <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.25rem' }}>{errors.price}</div>}
                     </div>
                     <div>
-                        <label style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem' }}>Image URL</label>
-                        <input
-                            type="text"
+                        <label style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem' }}>Product Image</label>
+                        <ImageUpload
                             value={form.image}
-                            onChange={e => setForm(f => ({ ...f, image: e.target.value }))}
-                            style={{ width: '100%', padding: '0.5rem 1rem', borderRadius: '0.5rem', background: colors.muted, color: colors.foreground, border: `1px solid ${colors.border}` }}
+                            onChange={handleImageChange}
+                            onError={handleImageError}
+                            disabled={submitting}
                         />
                         {errors.image && <div style={{ color: '#f87171', fontSize: '0.85rem', marginTop: '0.25rem' }}>{errors.image}</div>}
                     </div>

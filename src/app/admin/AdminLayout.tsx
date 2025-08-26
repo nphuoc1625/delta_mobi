@@ -3,7 +3,7 @@ import React, { useState, ReactNode, useEffect } from "react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import { useTheme } from "@/core/theme/ThemeContext";
-import { HiCube, HiCollection, HiUser, HiClipboardList, HiMenu, HiArrowLeft, HiX } from "react-icons/hi";
+import { HiCube, HiCollection, HiUser, HiClipboardList, HiMenu, HiArrowLeft, HiX, HiPhotograph } from "react-icons/hi";
 
 // Utility to detect mobile (improved with better breakpoint)
 function useIsMobile() {
@@ -29,6 +29,7 @@ interface AdminLayoutProps {
 const tabIcons: Record<string, ReactNode> = {
     Products: <HiCube className="w-5 h-5 mr-2" />,
     Categories: <HiCollection className="w-5 h-5 mr-2" />,
+    Images: <HiPhotograph className="w-5 h-5 mr-2" />,
     Users: <HiUser className="w-5 h-5 mr-2" />,
     Orders: <HiClipboardList className="w-5 h-5 mr-2" />,
 };

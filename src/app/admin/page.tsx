@@ -5,8 +5,9 @@ import ProductsView from "./tab_product/ProductsView";
 import UsersView from "./UsersView";
 import OrdersView from "./OrdersView";
 import CategoriesView from "./tab_category/CategoriesView";
+import ImagesManagementPage from "./tab_images/page";
 
-const tabs = ["Products", "Categories", "Users", "Orders"];
+const tabs = ["Products", "Categories", "Images", "Users", "Orders"];
 const TAB_KEY = "adminTabIndex";
 
 export default function AdminPage() {
@@ -24,6 +25,7 @@ export default function AdminPage() {
     let content = null;
     if (activeTab === "Products") content = <ProductsView />;
     if (activeTab === "Categories") content = <CategoriesView />;
+    if (activeTab === "Images") content = <ImagesManagementPage />;
     if (activeTab === "Users") content = <UsersView />;
     if (activeTab === "Orders") content = <OrdersView />;
 

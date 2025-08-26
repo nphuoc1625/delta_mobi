@@ -11,7 +11,10 @@
     "lint": "next lint",
     "build:dev": "NODE_ENV=development next build",
     "build:prod": "NODE_ENV=production next build",
-    "build:test": "NODE_ENV=test next build && npm run start"
+    "build:test": "NODE_ENV=test next build && npm run start",
+    "cleanup:images": "node scripts/cleanup-images.js",
+    "cleanup:images:dry": "node scripts/cleanup-images.js --dry-run",
+    "cleanup:images:force": "node scripts/cleanup-images.js --force"
   },
   "dependencies": {
     "@tailwindplus/elements": "^1.0.9",
