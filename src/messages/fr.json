@@ -1,0 +1,139 @@
+{
+    "common": {
+        "loading": "Chargement...",
+        "error": "Erreur",
+        "success": "Succès",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "add": "Ajouter",
+        "close": "Fermer",
+        "back": "Retour",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "search": "Rechercher",
+        "filter": "Filtrer",
+        "clear": "Effacer",
+        "submit": "Soumettre",
+        "confirm": "Confirmer",
+        "yes": "Oui",
+        "no": "Non",
+        "changeLanguage": "Changer de langue"
+    },
+    "navigation": {
+        "home": "Accueil",
+        "products": "Produits",
+        "categories": "Catégories",
+        "admin": "Administration",
+        "login": "Connexion",
+        "logout": "Déconnexion",
+        "profile": "Profil",
+        "settings": "Paramètres"
+    },
+    "admin": {
+        "title": "Panneau d'administration",
+        "dashboard": "Tableau de bord",
+        "users": "Utilisateurs",
+        "orders": "Commandes",
+        "images": "Images",
+        "backToMain": "Retour à l'accueil",
+        "manageProducts": "Gérer les produits",
+        "manageCategories": "Gérer les catégories",
+        "manageUsers": "Gérer les utilisateurs",
+        "manageOrders": "Gérer les commandes",
+        "manageImages": "Gérer les images"
+    },
+    "products": {
+        "title": "Produits",
+        "addProduct": "Ajouter un produit",
+        "editProduct": "Modifier le produit",
+        "deleteProduct": "Supprimer le produit",
+        "productName": "Nom du produit",
+        "productCategory": "Catégorie",
+        "productPrice": "Prix",
+        "productImage": "Image du produit",
+        "productDescription": "Description",
+        "productCreated": "Produit créé avec succès",
+        "productUpdated": "Produit mis à jour avec succès",
+        "productDeleted": "Produit supprimé avec succès",
+        "noProducts": "Aucun produit trouvé",
+        "searchProducts": "Rechercher des produits...",
+        "selectCategory": "Sélectionner une catégorie...",
+        "enterPrice": "Entrer le prix",
+        "enterName": "Entrer le nom du produit",
+        "validation": {
+            "nameRequired": "Le nom est requis",
+            "categoryRequired": "La catégorie est requise",
+            "priceRequired": "Le prix est requis",
+            "pricePositive": "Le prix doit être supérieur à 0"
+        }
+    },
+    "categories": {
+        "title": "Catégories",
+        "addCategory": "Ajouter une catégorie",
+        "editCategory": "Modifier la catégorie",
+        "deleteCategory": "Supprimer la catégorie",
+        "categoryName": "Nom de la catégorie",
+        "categoryDescription": "Description",
+        "parentCategory": "Catégorie parente",
+        "noCategories": "Aucune catégorie trouvée",
+        "selectParentCategory": "Sélectionner la catégorie parente...",
+        "enterCategoryName": "Entrer le nom de la catégorie",
+        "validation": {
+            "nameRequired": "Le nom de la catégorie est requis"
+        }
+    },
+    "images": {
+        "title": "Gestion des images",
+        "cleanupManager": "Gestionnaire de nettoyage d'images",
+        "storageStatistics": "Statistiques de stockage",
+        "totalImages": "Total des images",
+        "usedImages": "Images utilisées",
+        "orphanedImages": "Images orphelines",
+        "wastedSpace": "Espace gaspillé",
+        "refreshStats": "Actualiser les statistiques",
+        "dryRun": "Test à blanc",
+        "cleanUp": "Nettoyer",
+        "cleanupResults": "Résultats du nettoyage",
+        "successfullyDeleted": "Supprimé avec succès",
+        "failedToDelete": "Échec de la suppression",
+        "deletedFiles": "Fichiers supprimés",
+        "noOrphanedImages": "Aucune image orpheline trouvée !",
+        "storageClean": "Votre stockage d'images est propre et optimisé.",
+        "uploadArea": {
+            "clickToUpload": "Cliquer pour télécharger",
+            "dragAndDrop": "ou glisser-déposer",
+            "fileTypes": "PNG, JPG, GIF jusqu'à 5MB",
+            "uploading": "Téléchargement...",
+            "changeImage": "Changer l'image"
+        },
+        "validation": {
+            "imageFileRequired": "Veuillez sélectionner un fichier image",
+            "fileTooLarge": "La taille du fichier doit être inférieure à 5MB",
+            "uploadFailed": "Échec du téléchargement"
+        }
+    },
+    "forms": {
+        "required": "Ce champ est requis",
+        "invalidFormat": "Format invalide",
+        "minLength": "La longueur minimale est de {min} caractères",
+        "maxLength": "La longueur maximale est de {max} caractères",
+        "emailInvalid": "Adresse e-mail invalide",
+        "passwordMismatch": "Les mots de passe ne correspondent pas"
+    },
+    "errors": {
+        "general": "Quelque chose s'est mal passé",
+        "network": "Erreur réseau",
+        "unauthorized": "Non autorisé",
+        "forbidden": "Interdit",
+        "notFound": "Non trouvé",
+        "serverError": "Erreur serveur",
+        "validationError": "Erreur de validation"
+    },
+    "success": {
+        "operationCompleted": "Opération terminée avec succès",
+        "dataSaved": "Données enregistrées avec succès",
+        "dataDeleted": "Données supprimées avec succès"
+    }
+}

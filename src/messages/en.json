@@ -1,0 +1,139 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "close": "Close",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "search": "Search",
+        "filter": "Filter",
+        "clear": "Clear",
+        "submit": "Submit",
+        "confirm": "Confirm",
+        "yes": "Yes",
+        "no": "No",
+        "changeLanguage": "Change language"
+    },
+    "navigation": {
+        "home": "Home",
+        "products": "Products",
+        "categories": "Categories",
+        "admin": "Admin",
+        "login": "Login",
+        "logout": "Logout",
+        "profile": "Profile",
+        "settings": "Settings"
+    },
+    "admin": {
+        "title": "Admin Panel",
+        "dashboard": "Dashboard",
+        "users": "Users",
+        "orders": "Orders",
+        "images": "Images",
+        "backToMain": "Back to Main",
+        "manageProducts": "Manage Products",
+        "manageCategories": "Manage Categories",
+        "manageUsers": "Manage Users",
+        "manageOrders": "Manage Orders",
+        "manageImages": "Manage Images"
+    },
+    "products": {
+        "title": "Products",
+        "addProduct": "Add Product",
+        "editProduct": "Edit Product",
+        "deleteProduct": "Delete Product",
+        "productName": "Product Name",
+        "productCategory": "Category",
+        "productPrice": "Price",
+        "productImage": "Product Image",
+        "productDescription": "Description",
+        "productCreated": "Product created successfully",
+        "productUpdated": "Product updated successfully",
+        "productDeleted": "Product deleted successfully",
+        "noProducts": "No products found",
+        "searchProducts": "Search products...",
+        "selectCategory": "Select a category...",
+        "enterPrice": "Enter price",
+        "enterName": "Enter product name",
+        "validation": {
+            "nameRequired": "Name is required",
+            "categoryRequired": "Category is required",
+            "priceRequired": "Price is required",
+            "pricePositive": "Price must be greater than 0"
+        }
+    },
+    "categories": {
+        "title": "Categories",
+        "addCategory": "Add Category",
+        "editCategory": "Edit Category",
+        "deleteCategory": "Delete Category",
+        "categoryName": "Category Name",
+        "categoryDescription": "Description",
+        "parentCategory": "Parent Category",
+        "noCategories": "No categories found",
+        "selectParentCategory": "Select parent category...",
+        "enterCategoryName": "Enter category name",
+        "validation": {
+            "nameRequired": "Category name is required"
+        }
+    },
+    "images": {
+        "title": "Image Management",
+        "cleanupManager": "Image Cleanup Manager",
+        "storageStatistics": "Storage Statistics",
+        "totalImages": "Total Images",
+        "usedImages": "Used Images",
+        "orphanedImages": "Orphaned Images",
+        "wastedSpace": "Wasted Space",
+        "refreshStats": "Refresh Stats",
+        "dryRun": "Dry Run",
+        "cleanUp": "Clean Up",
+        "cleanupResults": "Cleanup Results",
+        "successfullyDeleted": "Successfully deleted",
+        "failedToDelete": "Failed to delete",
+        "deletedFiles": "Deleted files",
+        "noOrphanedImages": "No orphaned images found!",
+        "storageClean": "Your image storage is clean and optimized.",
+        "uploadArea": {
+            "clickToUpload": "Click to upload",
+            "dragAndDrop": "or drag and drop",
+            "fileTypes": "PNG, JPG, GIF up to 5MB",
+            "uploading": "Uploading...",
+            "changeImage": "Change Image"
+        },
+        "validation": {
+            "imageFileRequired": "Please select an image file",
+            "fileTooLarge": "File size must be less than 5MB",
+            "uploadFailed": "Upload failed"
+        }
+    },
+    "forms": {
+        "required": "This field is required",
+        "invalidFormat": "Invalid format",
+        "minLength": "Minimum length is {min} characters",
+        "maxLength": "Maximum length is {max} characters",
+        "emailInvalid": "Invalid email address",
+        "passwordMismatch": "Passwords do not match"
+    },
+    "errors": {
+        "general": "Something went wrong",
+        "network": "Network error",
+        "unauthorized": "Unauthorized",
+        "forbidden": "Forbidden",
+        "notFound": "Not found",
+        "serverError": "Server error",
+        "validationError": "Validation error"
+    },
+    "success": {
+        "operationCompleted": "Operation completed successfully",
+        "dataSaved": "Data saved successfully",
+        "dataDeleted": "Data deleted successfully"
+    }
+}

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "@/core/theme/ThemeContext";
 import { FiSun, FiMoon } from "react-icons/fi";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Header() {
     const { theme, colors, toggleTheme } = useTheme();
@@ -29,33 +30,36 @@ export default function Header() {
             </div>
             <nav className="flex gap-4">
                 <Link href="/products" style={{ color: colors.foreground }} className="px-4 py-2 rounded-lg font-medium hover:opacity-80 transition">Products</Link>
+                <Link href="/demo" style={{ color: colors.foreground }} className="px-4 py-2 rounded-lg font-medium hover:opacity-80 transition">🌍 Demo</Link>
                 <a href="#about" style={{ color: colors.foreground }} className="px-4 py-2 rounded-lg font-medium hover:opacity-80 transition">About</a>
                 <a href="#contact" style={{ color: colors.foreground }} className="px-4 py-2 rounded-lg font-medium hover:opacity-80 transition">Contact</a>
             </nav>
-            <button
-                onClick={toggleTheme}
-                aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
-                style={{
-                    background: isLight ? '#2563eb' : '#facc15',
-                    color: '#fff',
-                    padding: '0.25rem',
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.1rem',
-                    marginLeft: '1rem',
-                    border: 'none',
-                    transition: 'background 0.2s',
-                }}
-            >
-                {isLight ? (
-                    <FiMoon color="#fff" size={18} />
-                ) : (
-                    <FiSun color="#fff" size={18} />
-                )}
-            </button>
+            <div className="flex items-center gap-3">
+                <LanguageSwitcher />
+                <button
+                    onClick={toggleTheme}
+                    aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
+                    style={{
+                        background: isLight ? '#2563eb' : '#facc15',
+                        color: '#fff',
+                        padding: '0.25rem',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.1rem',
+                        border: 'none',
+                        transition: 'background 0.2s',
+                    }}
+                >
+                    {isLight ? (
+                        <FiMoon color="#fff" size={18} />
+                    ) : (
+                        <FiSun color="#fff" size={18} />
+                    )}
+                </button>
+            </div>
         </header>
     );
 } 

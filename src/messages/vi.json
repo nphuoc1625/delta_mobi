@@ -1,0 +1,139 @@
+{
+    "common": {
+        "loading": "Đang tải...",
+        "error": "Lỗi",
+        "success": "Thành công",
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "delete": "Xóa",
+        "edit": "Sửa",
+        "add": "Thêm",
+        "close": "Đóng",
+        "back": "Quay lại",
+        "next": "Tiếp theo",
+        "previous": "Trước",
+        "search": "Tìm kiếm",
+        "filter": "Lọc",
+        "clear": "Xóa",
+        "submit": "Gửi",
+        "confirm": "Xác nhận",
+        "yes": "Có",
+        "no": "Không",
+        "changeLanguage": "Thay đổi ngôn ngữ"
+    },
+    "navigation": {
+        "home": "Trang chủ",
+        "products": "Sản phẩm",
+        "categories": "Danh mục",
+        "admin": "Quản trị",
+        "login": "Đăng nhập",
+        "logout": "Đăng xuất",
+        "profile": "Hồ sơ",
+        "settings": "Cài đặt"
+    },
+    "admin": {
+        "title": "Bảng quản trị",
+        "dashboard": "Tổng quan",
+        "users": "Người dùng",
+        "orders": "Đơn hàng",
+        "images": "Hình ảnh",
+        "backToMain": "Về trang chính",
+        "manageProducts": "Quản lý sản phẩm",
+        "manageCategories": "Quản lý danh mục",
+        "manageUsers": "Quản lý người dùng",
+        "manageOrders": "Quản lý đơn hàng",
+        "manageImages": "Quản lý hình ảnh"
+    },
+    "products": {
+        "title": "Sản phẩm",
+        "addProduct": "Thêm sản phẩm",
+        "editProduct": "Sửa sản phẩm",
+        "deleteProduct": "Xóa sản phẩm",
+        "productName": "Tên sản phẩm",
+        "productCategory": "Danh mục",
+        "productPrice": "Giá",
+        "productImage": "Hình ảnh sản phẩm",
+        "productDescription": "Mô tả",
+        "productCreated": "Sản phẩm đã được tạo thành công",
+        "productUpdated": "Sản phẩm đã được cập nhật thành công",
+        "productDeleted": "Sản phẩm đã được xóa thành công",
+        "noProducts": "Không tìm thấy sản phẩm nào",
+        "searchProducts": "Tìm kiếm sản phẩm...",
+        "selectCategory": "Chọn danh mục...",
+        "enterPrice": "Nhập giá",
+        "enterName": "Nhập tên sản phẩm",
+        "validation": {
+            "nameRequired": "Tên sản phẩm là bắt buộc",
+            "categoryRequired": "Danh mục là bắt buộc",
+            "priceRequired": "Giá là bắt buộc",
+            "pricePositive": "Giá phải lớn hơn 0"
+        }
+    },
+    "categories": {
+        "title": "Danh mục",
+        "addCategory": "Thêm danh mục",
+        "editCategory": "Sửa danh mục",
+        "deleteCategory": "Xóa danh mục",
+        "categoryName": "Tên danh mục",
+        "categoryDescription": "Mô tả",
+        "parentCategory": "Danh mục cha",
+        "noCategories": "Không tìm thấy danh mục nào",
+        "selectParentCategory": "Chọn danh mục cha...",
+        "enterCategoryName": "Nhập tên danh mục",
+        "validation": {
+            "nameRequired": "Tên danh mục là bắt buộc"
+        }
+    },
+    "images": {
+        "title": "Quản lý hình ảnh",
+        "cleanupManager": "Quản lý dọn dẹp hình ảnh",
+        "storageStatistics": "Thống kê lưu trữ",
+        "totalImages": "Tổng hình ảnh",
+        "usedImages": "Hình ảnh đang sử dụng",
+        "orphanedImages": "Hình ảnh không sử dụng",
+        "wastedSpace": "Không gian lãng phí",
+        "refreshStats": "Làm mới thống kê",
+        "dryRun": "Chạy thử",
+        "cleanUp": "Dọn dẹp",
+        "cleanupResults": "Kết quả dọn dẹp",
+        "successfullyDeleted": "Đã xóa thành công",
+        "failedToDelete": "Xóa thất bại",
+        "deletedFiles": "Tệp đã xóa",
+        "noOrphanedImages": "Không tìm thấy hình ảnh không sử dụng!",
+        "storageClean": "Kho lưu trữ hình ảnh của bạn đã sạch và tối ưu.",
+        "uploadArea": {
+            "clickToUpload": "Nhấp để tải lên",
+            "dragAndDrop": "hoặc kéo và thả",
+            "fileTypes": "PNG, JPG, GIF tối đa 5MB",
+            "uploading": "Đang tải lên...",
+            "changeImage": "Thay đổi hình ảnh"
+        },
+        "validation": {
+            "imageFileRequired": "Vui lòng chọn tệp hình ảnh",
+            "fileTooLarge": "Kích thước tệp phải nhỏ hơn 5MB",
+            "uploadFailed": "Tải lên thất bại"
+        }
+    },
+    "forms": {
+        "required": "Trường này là bắt buộc",
+        "invalidFormat": "Định dạng không hợp lệ",
+        "minLength": "Độ dài tối thiểu là {min} ký tự",
+        "maxLength": "Độ dài tối đa là {max} ký tự",
+        "emailInvalid": "Địa chỉ email không hợp lệ",
+        "passwordMismatch": "Mật khẩu không khớp"
+    },
+    "errors": {
+        "general": "Đã xảy ra lỗi",
+        "network": "Lỗi mạng",
+        "unauthorized": "Không được phép",
+        "forbidden": "Bị cấm",
+        "notFound": "Không tìm thấy",
+        "serverError": "Lỗi máy chủ",
+        "validationError": "Lỗi xác thực"
+    },
+    "success": {
+        "operationCompleted": "Thao tác hoàn thành thành công",
+        "dataSaved": "Dữ liệu đã được lưu thành công",
+        "dataDeleted": "Dữ liệu đã được xóa thành công"
+    }
+}
